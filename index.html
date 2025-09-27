@@ -912,11 +912,15 @@
             tbody.innerHTML='';
             
             if (!journals) return flash('Gagal mengambil data rekap.');
-            if (journals.length === 0) return tbody.innerHTML = `<tr><td colspan="11" class="text-center py-4 text-violet-300">Tidak ada data jurnal pada rentang ini.</td></tr>`;
+            
+            // FILTRASI UTAMA: Hanya tampilkan jurnal yang sudah Terkirim (submitted: true/1/"TRUE")
+			const submittedJournals = journals.filter(j => j.submitted === true || j.submitted === 'TRUE' || j.submitted === 1);
 
-            const rows = journals.map(j => {
+            if (submittedJournals.length === 0) return tbody.innerHTML = `<tr><td colspan="11" class="text-center py-4 text-violet-300">Tidak ada jurnal terkirim pada rentang ini.</td></tr>`;
+
+            const rows = submittedJournals.map(j => {
                 const s = state.students.find(s => String(s.id) === String(j.studentId)) || {name: 'Siswa Dihapus', kelas: '-'};
-                // [FIX] Menghitung dan membaca dari data datar
+                // Menggunakan properti datar (flat) yang sudah Anda siapkan
                 const ibadahCount = (j.ibadahSubuh?1:0) + (j.ibadahDzuhur?1:0) + (j.ibadahAshar?1:0) + (j.ibadahMaghrib?1:0) + (j.ibadahIsya?1:0);
                 return {
                     tanggal: j.date, kelas:s.kelas, siswa:s.name, 
@@ -925,7 +929,7 @@
                     makan: j.makanYa ? 'Ya' : 'Tidak',
                     belajar: j.belajarMenit || 0, 
                     sos: j.sosMenit || 0, 
-                    tidur: j.tidurJam || '-',
+                    tidur: j.tidurJam || '-', // Mengambil jam tidur yang sudah benar
                     status: j.tidurLarut ? 'Tidur Larut' : (j.submitted ? 'Terkirim' : 'Draft'),
                     komentar: (j.comments?.length||0)
                 };
@@ -986,22 +990,34 @@
             const sampai = $('#rekapSampai').value || todayStr();
             
             flash('Mengambil data rekap dari server...');
+            // Apps Script sekarang sudah memfilter yang submitted: true
             const journals = await fetchFromServer('getAdminRekap', { kelas, dari, sampai });
             
             const tbody = $('#rekapTable'); 
-            tbody.innerHTML=''; // Hanya membersihkan tabel utama
+            tbody.innerHTML='';
             
             if (!journals) return flash('Gagal mengambil data rekap.');
-            if (journals.length === 0) return tbody.innerHTML = `<tr><td colspan="11" class="text-center py-4 text-violet-300">Tidak ada data jurnal pada rentang ini.</td></tr>`;
+            
+            // JIKA Apps Script sudah memfilter, journals adalah data submitted.
+            // Jika ada keraguan, gunakan pemfilteran toleran di frontend:
+            const submittedJournals = journals.filter(j => j.submitted === true || j.submitted === 'TRUE' || j.submitted === 1);
 
-            const rows = journals.map(j => {
+            if (submittedJournals.length === 0) return tbody.innerHTML = `<tr><td colspan="11" class="text-center py-4 text-violet-300">Tidak ada jurnal terkirim pada rentang ini.</td></tr>`;
+
+            const rows = submittedJournals.map(j => {
                 const s = state.students.find(s => String(s.id) === String(j.studentId)) || {name: 'Siswa Dihapus', kelas: '-'};
+                
+                const ibadahCount = (j.ibadahSubuh?1:0) + (j.ibadahDzuhur?1:0) + (j.ibadahAshar?1:0) + (j.ibadahMaghrib?1:0) + (j.ibadahIsya?1:0);
                 return {
                     tanggal: j.date, kelas:s.kelas, siswa:s.name, 
-                    ib: Object.values(j.ibadah||{}).filter(Boolean).length,
-                    olahraga:j.olahraga?.menit||0, makan: j.makan?.ya ? 'Ya' : 'Tidak',
-                    belajar:j.belajar?.menit||0, sos:j.sos?.menit||0, tidur:j.tidur?.jam||'-',
-                    status: j.tidur?.larut ? 'Tidur Larut' : (j.submitted ? 'Terkirim' : 'Draft'),
+                    ib: ibadahCount,
+                    olahraga: j.olahragaMenit || 0, 
+                    makan: j.makanYa ? 'Ya' : 'Tidak',
+                    belajar: j.belajarMenit || 0, 
+                    sos: j.sosMenit || 0, 
+                    tidur: j.tidurJam || '-',
+                    // Catatan: Status akan selalu 'Terkirim' atau 'Tidur Larut' karena Draft sudah difilter.
+                    status: j.tidurLarut ? 'Tidur Larut' : 'Terkirim', 
                     komentar: (j.comments?.length||0)
                 };
             });
@@ -1011,7 +1027,7 @@
                 const tr=document.createElement('tr'); 
                 tr.className='border-b border-white/10';
                 tr.innerHTML=`<td class="py-2 pr-2">${fmtDateID(r.tanggal)}</td> <td class="py-2 pr-2">${escapeHtml(r.kelas)}</td> <td class="py-2 pr-2">${escapeHtml(r.siswa)}</td> <td class="py-2 pr-2 text-center">${r.ib}</td> <td class="py-2 pr-2 text-center">${r.olahraga}</td> <td class="py-2 pr-2">${r.makan}</td> <td class="py-2 pr-2 text-center">${r.belajar}</td> <td class="py-2 pr-2 text-center">${r.sos}</td> <td class="py-2 pr-2">${r.tidur}</td> <td class="py-2 pr-2 text-center">${r.komentar}</td> <td class="py-2 pr-2">${r.status}</td>`;
-                tbody.appendChild(tr); // Hanya mengisi tabel utama
+                tbody.appendChild(tr);
             });
             $('#printAdminMeta').textContent = `Sekolah: ${state.school.name} • Kelas: ${kelas==='ALL'?'Semua':kelas} • Periode: ${fmtDateID(dari)} — ${fmtDateID(sampai)}`;
         }
@@ -1021,7 +1037,7 @@
             const tbody=$('#guruJournalTable'); 
             tbody.innerHTML='';
             const mode=$('#guruMode').value;
-            const status = $('#filterStatusGuru').value;
+            const status = $('#filterStatusGuru').value; // 'semua', 'terkirim', 'belum', 'larut'
             const q = ($('#filterNamaGuru').value||'').toLowerCase();
             const inRange = (ds) => {
                 if (!ds) return false;
@@ -1037,27 +1053,48 @@
             }
 
             students.forEach(s=>{
-                const list = state.journals.filter(j=>j && String(j.studentId)===String(s.id) && inRange(j.date)).sort((a,b)=>b.date.localeCompare(a.date));
-                if (list.length===0){
-                    if (status==='terkirim' || status==='larut') return;
-                    const tr=document.createElement('tr'); tr.className='border-b border-white/10';
-                    tr.innerHTML = `<td class="py-2 pr-2">${escapeHtml(s.name)}</td><td class="py-2 pr-2 text-violet-300" colspan="10">Belum mengisi jurnal pada tanggal ini</td>`;
-                    tbody.appendChild(tr);
+                // Ambil semua jurnal untuk siswa dan rentang saat ini
+                const allJournals = state.journals.filter(j=>j && String(j.studentId)===String(s.id) && inRange(j.date));
+                let list = allJournals.sort((a,b)=>b.date.localeCompare(a.date));
+
+                // LOGIKA FILTER STATUS UNTUK GURU
+                if (status === 'terkirim') {
+                    list = list.filter(j => j.submitted);
+                } else if (status === 'belum') {
+                    // Cek jika ada isian (Draft) yang belum dikirim
+                    list = list.filter(j => !j.submitted);
+                } else if (status === 'larut') {
+                    list = list.filter(j => j.submitted && j.tidurLarut);
+                } else if (status === 'semua') {
+                    // Secara default, mode "Semua" di guru seharusnya hanya menampilkan yang submitted agar tidak penuh
+                    list = list.filter(j => j.submitted);
+                }
+                
+                // Jika setelah filter 'terkirim', 'larut', atau 'semua', hasilnya kosong:
+                if (list.length===0 && status !== 'belum'){
+                    const hasSubmitted = allJournals.some(j => j.submitted);
+                    // Tampilkan "Belum mengisi jurnal" jika memang belum ada jurnal terkirim di rentang ini
+                    if (!hasSubmitted){
+                        const tr=document.createElement('tr'); tr.className='border-b border-white/10';
+                        const msg = mode === 'harian' ? "Belum mengisi jurnal pada tanggal ini" : "Tidak ada jurnal terkirim pada rentang ini";
+                        tr.innerHTML = `<td class="py-2 pr-2">${escapeHtml(s.name)}</td><td class="py-2 pr-2 text-violet-300" colspan="10">${msg}</td>`;
+                        tbody.appendChild(tr);
+                    }
                     return;
                 }
+                
+                // Menampilkan hasil filter
                 list.forEach(j=>{
-                    if (status==='terkirim' && !j.submitted) return;
-                    if (status==='belum' && j.submitted) return;
-                    if (status==='larut' && !j.tidurLarut) return;
+                    // Untuk filter "Belum Kirim", kita mungkin masih menampilkan Draft
+                    if ((status === 'terkirim' || status === 'larut') && !j.submitted) return; 
                     
-                    // [YANG DIPERBAIKI] Menghitung total ibadah dari data datar
                     const ibadahCount = (j.ibadahSubuh?1:0) + (j.ibadahDzuhur?1:0) + (j.ibadahAshar?1:0) + (j.ibadahMaghrib?1:0) + (j.ibadahIsya?1:0);
                     
                     const statusText = j.tidurLarut ? 'Tidur Larut' : (j.submitted ? 'Terkirim' : 'Draft');
                     const komentarCount = (j.comments?.length||0);
                     const tr=document.createElement('tr'); tr.className='border-b border-white/10';
 
-                    // [YANG DIPERBAIKI] Menggunakan properti datar seperti j.olahragaMenit, j.makanYa, dll.
+                    // PENTING: Memastikan properti datar diakses dan adanya fallback '-'
                     tr.innerHTML=`<td class="py-2 pr-2">${escapeHtml(s.name)}</td> <td class="py-2 pr-2">${fmtDateID(j.date)}</td> <td class="py-2 pr-2">${j.bangun||'-'}</td> <td class="py-2 pr-2 text-center">${ibadahCount}</td> <td class="py-2 pr-2 text-center">${j.olahragaMenit??0}</td> <td class="py-2 pr-2">${j.makanYa?'Ya':'Tidak'}</td> <td class="py-2 pr-2 text-center">${j.belajarMenit??0}</td> <td class="py-2 pr-2 text-center">${j.sosMenit??0}</td> <td class="py-2 pr-2">${j.tidurJam||'-'}</td> <td class="py-2 pr-2"><button class="btnComment no-print px-2 py-1 rounded bg-white/10 hover:bg-white/15 border border-white/15 text-xs" data-sid="${s.id}" data-date="${j.date}">💬 ${komentarCount}</button></td> <td class="py-2 pr-2">${statusText}</td>`;
                     tbody.appendChild(tr);
                 });
