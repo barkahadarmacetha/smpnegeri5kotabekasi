@@ -539,8 +539,8 @@
             <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                 <div class="glass rounded-2xl p-4 text-sm text-violet-200/80">
                     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-                        <div>Made with ❤️ by Team IT SMP Negeri 5 Kota Bekasi.</div>
-                        <div class="text-violet-200/70">Muhammad Ismail Shidik”.</div>
+                        <div>Made with ❤️ by Team Kurikulum Pandawa.</div>
+                        <div class="text-violet-200/70">Muhammad Ismail Shidik</div>
                     </div>
                 </div>
             </div>
@@ -1128,13 +1128,30 @@
         function onTanggalChange(){ const d=$('#tanggalJurnalSiswa').value || todayStr(); loadFormForDate(d); updateRingkasan(); updateProgress(); }
         function loadFormForDate(date){
             const j=getJournal(state.user.id, date);
+            // Menggunakan struktur data yang sudah datar (flat)
             $('#bangunPagi').value=j?.bangun||'';
-            $('#ibadahSubuh').checked=!!j?.ibadah?.subuh; $('#ibadahDzuhur').checked=!!j?.ibadah?.dzuhur; $('#ibadahAshar').checked=!!j?.ibadah?.ashar; $('#ibadahMaghrib').checked=!!j?.ibadah?.maghrib; $('#ibadahIsya').checked=!!j?.ibadah?.isya;
-            $('#olahragaKegiatan').value=j?.olahraga?.kegiatan||''; $('#olahragaMenit').value=j?.olahraga?.menit??'';
-            $('#makanSehatYa').checked=!!j?.makan?.ya; $('#makanKarbo').checked=!!j?.makan?.karbo; $('#makanSayurBuahSusu').checked=!!j?.makan?.sayurBuahSusu; $('#makanLauk').checked=!!j?.makan?.lauk; $('#makanAir').checked=!!j?.makan?.air; $('#makanCatatan').value=j?.makan?.catatan||'';
-            $('#belajarMenit').value=j?.belajar?.menit??''; $('#belajarMateri').value=j?.belajar?.materi||'';
-            $('#sosBermain').checked=!!j?.sos?.bermain; $('#sosBantuOrtu').checked=!!j?.sos?.bantuOrtu; $('#sosBelKelompok').checked=!!j?.sos?.belKelompok; $('#sosMenolong').checked=!!j?.sos?.menolong; $('#sosialisasiMenit').value=j?.sos?.menit??''; $('#sosCatatan').value=j?.sos?.catatan||'';
-            $('#tidurJam').value=j?.tidur?.jam||'';
+            $('#ibadahSubuh').checked=!!j?.ibadahSubuh; 
+            $('#ibadahDzuhur').checked=!!j?.ibadahDzuhur; 
+            $('#ibadahAshar').checked=!!j?.ibadahAshar; 
+            $('#ibadahMaghrib').checked=!!j?.ibadahMaghrib; 
+            $('#ibadahIsya').checked=!!j?.ibadahIsya;
+            $('#olahragaKegiatan').value=j?.olahragaKegiatan||''; 
+            $('#olahragaMenit').value=j?.olahragaMenit??'';
+            $('#makanSehatYa').checked=!!j?.makanYa; 
+            $('#makanKarbo').checked=!!j?.makanKarbo; 
+            $('#makanSayurBuahSusu').checked=!!j?.makanSayurBuahSusu; 
+            $('#makanLauk').checked=!!j?.makanLauk; 
+            $('#makanAir').checked=!!j?.makanAir; 
+            $('#makanCatatan').value=j?.makanCatatan||'';
+            $('#belajarMenit').value=j?.belajarMenit??''; 
+            $('#belajarMateri').value=j?.belajarMateri||'';
+            $('#sosBermain').checked=!!j?.sosBermain; 
+            $('#sosBantuOrtu').checked=!!j?.sosBantuOrtu; 
+            $('#sosBelKelompok').checked=!!j?.sosBelKelompok; 
+            $('#sosMenolong').checked=!!j?.sosMenolong; 
+            $('#sosialisasiMenit').value=j?.sosMenit??''; 
+            $('#sosCatatan').value=j?.sosCatatan||'';
+            $('#tidurJam').value=j?.tidurJam||'';
             $('#statusForm').textContent = j?.submitted?'Status: Terkirim':(j?'Status: Draft':'Status: Belum diisi');
             toggleFormDisabled(!!j?.submitted);
         }
@@ -1154,14 +1171,32 @@
             }
         }
         function readForm(){
+            // Objek datar (flat object) lebih mudah diproses oleh backend
             return {
                 bangun: $('#bangunPagi').value || '',
-                ibadah: { subuh: $('#ibadahSubuh').checked, dzuhur: $('#ibadahDzuhur').checked, ashar: $('#ibadahAshar').checked, maghrib: $('#ibadahMaghrib').checked, isya: $('#ibadahIsya').checked },
-                olahraga: { kegiatan: $('#olahragaKegiatan').value || '', menit: Number($('#olahragaMenit').value || 0) },
-                makan: { ya: $('#makanSehatYa').checked, karbo: $('#makanKarbo').checked, sayurBuahSusu: $('#makanSayurBuahSusu').checked, lauk: $('#makanLauk').checked, air: $('#makanAir').checked, catatan: $('#makanCatatan').value || '' },
-                belajar: { menit: Number($('#belajarMenit').value || 0), materi: $('#belajarMateri').value || '' },
-                sos: { menit: Number($('#sosialisasiMenit').value || 0), bermain: $('#sosBermain').checked, bantuOrtu: $('#sosBantuOrtu').checked, belKelompok: $('#sosBelKelompok').checked, menolong: $('#sosMenolong').checked, catatan: $('#sosCatatan').value || '' },
-                tidur: { jam: $('#tidurJam').value || '', larut: (timeToMin($('#tidurJam').value) ?? 0) > (22*60) }
+                ibadahSubuh: $('#ibadahSubuh').checked,
+                ibadahDzuhur: $('#ibadahDzuhur').checked,
+                ibadahAshar: $('#ibadahAshar').checked,
+                ibadahMaghrib: $('#ibadahMaghrib').checked,
+                ibadahIsya: $('#ibadahIsya').checked,
+                olahragaKegiatan: $('#olahragaKegiatan').value || '',
+                olahragaMenit: Number($('#olahragaMenit').value || 0),
+                makanYa: $('#makanSehatYa').checked,
+                makanKarbo: $('#makanKarbo').checked,
+                makanSayurBuahSusu: $('#makanSayurBuahSusu').checked,
+                makanLauk: $('#makanLauk').checked,
+                makanAir: $('#makanAir').checked,
+                makanCatatan: $('#makanCatatan').value || '',
+                belajarMenit: Number($('#belajarMenit').value || 0),
+                belajarMateri: $('#belajarMateri').value || '',
+                sosMenit: Number($('#sosialisasiMenit').value || 0),
+                sosBermain: $('#sosBermain').checked,
+                sosBantuOrtu: $('#sosBantuOrtu').checked,
+                sosBelKelompok: $('#sosBelKelompok').checked,
+                sosMenolong: $('#sosMenolong').checked,
+                sosCatatan: $('#sosCatatan').value || '',
+                tidurJam: $('#tidurJam').value || '',
+                tidurLarut: (timeToMin($('#tidurJam').value) ?? 0) > (22*60)
             };
         }
         async function onSimpanKirimJurnal(isSubmit){
@@ -1170,7 +1205,7 @@
             let j=getJournal(sId,date);
             const form=readForm();
             if (j && j.submitted) return flash('Jurnal sudah terkirim dan terkunci.');
-            if (isSubmit && (!form.bangun || !form.tidur?.jam)) return alert('Lengkapi jam bangun dan jam tidur sebelum mengirim.');
+            if (isSubmit && (!form.bangun || !form.tidurJam)) return alert('Lengkapi jam bangun dan jam tidur sebelum mengirim.');
             
             const newJournalData = { ...form, id: j?.id || uid(), studentId: sId, date, submitted: isSubmit, submittedAt: isSubmit ? new Date().toISOString() : null, comments: j?.comments || [] };
             
@@ -1207,11 +1242,12 @@
             $('#rwyLarutCount').textContent=terkirim.filter(j=>j.tidur?.larut).length;
         }
         function updateRingkasan(){
-            const d=$('#tanggalJurnalSiswa').value || todayStr(); const j=getJournal(state.user.id,d);
-            const wrap=$('#ringkasanHariIni');
-            if(!j){ wrap.innerHTML='<div class="text-violet-200/80">Belum ada isian untuk tanggal ini.</div>'; return; }
-            wrap.innerHTML=`<div><strong>Tanggal:</strong> ${fmtDateID(d)}</div> <div><strong>Bangun:</strong> ${j.bangun||'-'}</div> <div><strong>Ibadah:</strong> ${Object.values(j.ibadah||{}).filter(Boolean).length} kali</div> <div><strong>Olahraga:</strong> ${j.olahraga?.menit??0} menit</div> <div><strong>Makan sehat:</strong> ${j.makan?.ya?'Ya':'Tidak'}</div> <div><strong>Belajar:</strong> ${j.belajar?.menit??0} menit</div> <div><strong>Bermasyarakat:</strong> ${j.sos?.menit??0} menit</div> <div><strong>Tidur:</strong> ${j.tidur?.jam||'-'} ${j.tidur?.larut?'(larut malam)':''}</div> <div><strong>Status:</strong> ${j.submitted?'Terkirim':'Draft'}</div>`;
-        }
+			const d=$('#tanggalJurnalSiswa').value || todayStr(); const j=getJournal(state.user.id,d);
+			const wrap=$('#ringkasanHariIni');
+			if(!j){ wrap.innerHTML='<div class="text-violet-200/80">Belum ada isian untuk tanggal ini.</div>'; return; }
+			const ibadahCount = (j.ibadahSubuh?1:0) + (j.ibadahDzuhur?1:0) + (j.ibadahAshar?1:0) + (j.ibadahMaghrib?1:0) + (j.ibadahIsya?1:0);
+			wrap.innerHTML=`<div><strong>Tanggal:</strong> ${fmtDateID(d)}</div> <div><strong>Bangun:</strong> ${j.bangun||'-'}</div> <div><strong>Ibadah:</strong> ${ibadahCount} kali</div> <div><strong>Olahraga:</strong> ${j.olahragaMenit??0} menit</div> <div><strong>Makan sehat:</strong> ${j.makanYa?'Ya':'Tidak'}</div> <div><strong>Belajar:</strong> ${j.belajarMenit??0} menit</div> <div><strong>Bermasyarakat:</strong> ${j.sosMenit??0} menit</div> <div><strong>Tidur:</strong> ${j.tidurJam||'-'} ${j.tidurLarut?'(larut malam)':''}</div> <div><strong>Status:</strong> ${j.submitted?'Terkirim':'Draft'}</div>`;
+		}
         function updateProgress(){
             const j=readForm(); let count=0;
             if(j.bangun) count++;
