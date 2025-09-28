@@ -5,6 +5,8 @@
     <title>Jurnal 7 Kebiasaan</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <script src="https://cdn.tailwindcss.com"></script>
+	<script src="https://unpkg.com/jspdf@latest/dist/jspdf.umd.min.js"></script>
+    <script src="https://unpkg.com/jspdf-autotable@3.8.2/dist/jspdf.plugin.autotable.js"></script>
     <meta name="color-scheme" content="light only">
     <style>
         :root { --brand1:#4f46e5; --brand2:#9333ea; --ink:#0f172a; }
@@ -254,52 +256,123 @@
                         </div>
 
                         <div id="tabRekap" class="hidden p-4 sm:p-6">
-                            <div class="glass rounded-xl p-4">
-                                <div class="print-only">
-                                    <h2 class="text-white text-xl font-bold">Rekap Jurnal — Admin</h2>
-                                    <div id="printAdminMeta" class="text-black text-sm"></div>
-                                </div>
-                                <div class="no-print flex flex-col md:flex-row md:items-end gap-3">
-                                    <div class="flex-1"> <label class="block text-sm mb-1">Kelas</label> <select id="rekapKelas" class="w-full px-3 py-2 rounded-lg bg-black/75 border border-white/15"> <option value="ALL">Semua Kelas</option> </select> </div> <div> <label class="block text-sm mb-1">Dari Tanggal</label> <input id="rekapDari" type="date" class="px-3 py-2 rounded-lg bg-white/10 border border-white/15"> </div> <div> <label class="block text-sm mb-1">Sampai Tanggal</label> <input id="rekapSampai" type="date" class="px-3 py-2 rounded-lg bg-white/10 border border-white/15"> </div> <div class="flex items-center gap-2"> <button id="btnRekapTerapkan" class="px-4 py-2 rounded-lg bg-green-500/90 text-ink font-semibold hover:opacity-90">Terapkan</button> <button id="btnRekapCetak" class="px-4 py-2 rounded-lg bg-white/10 border border-white/15 hover:bg-white/15">Cetak / PDF</button> </div>
-                                </div>
-                                <div class="mt-4 overflow-auto">
-                                    <table class="min-w-full text-sm">
-                                        <thead class="text-violet-200/80"> <tr class="border-b border-white/10"> <th class="text-left py-2 pr-2">Tanggal</th> <th class="text-left py-2 pr-2">Kelas</th> <th class="text-left py-2 pr-2">Siswa</th> <th class="text-left py-2 pr-2">Bangun</th> <th class="text-left py-2 pr-2">Ibadah (✔)</th> <th class="text-left py-2 pr-2">Olahraga (m)</th> <th class="text-left py-2 pr-2">Makan Sehat</th> <th class="text-left py-2 pr-2">Belajar (m)</th> <th class="text-left py-2 pr-2">Sosialisasi (m)</th> <th class="text-left py-2 pr-2">Tidur</th> <th class="text-left py-2 pr-2">Komentar</th> <th class="text-left py-2 pr-2">Status</th> </tr> </thead>
-                                        <tbody id="rekapTable"></tbody>
-                                    </table>
-                                </div>
-                                </div>
-                        </div>
+						<div class="glass rounded-xl p-4">
+							<div class="print-only">
+								<h2 id="printAdminTitle" class="text-white text-xl font-bold">Rekap Jurnal — Admin</h2>
+								<div id="printAdminMeta" class="text-black text-sm"></div>
+							</div>
 
-                    </div>
+							<div class="no-print flex flex-col md:flex-row md:items-end gap-3">
+								<div class="flex-1">
+									<label class="block text-sm mb-1">Tampilan</label>
+									<div class="flex rounded-lg bg-black/75 border border-white/15 p-1">
+										<button id="adminRekapViewLog" class="flex-1 px-3 py-1.5 text-sm rounded-md bg-white/10">Log Jurnal</button>
+										<button id="adminRekapViewPredicate" class="flex-1 px-3 py-1.5 text-sm rounded-md">Rekap Predikat</button>
+									</div>
+								</div>
+								<div> <label class="block text-sm mb-1">Kelas</label> <select id="rekapKelas" class="w-full px-3 py-2 rounded-lg bg-black/75 border border-white/15"> <option value="ALL">Semua Kelas</option> </select> </div>
+								<div> <label class="block text-sm mb-1">Dari Tanggal</label> <input id="rekapDari" type="date" class="px-3 py-2 rounded-lg bg-white/10 border border-white/15"> </div>
+								<div> <label class="block text-sm mb-1">Sampai Tanggal</label> <input id="rekapSampai" type="date" class="px-3 py-2 rounded-lg bg-white/10 border border-white/15"> </div>
+								<div class="flex items-center gap-2"> 
+									<button id="btnRekapTerapkan" class="px-4 py-2 rounded-lg bg-green-500/90 text-ink font-semibold hover:opacity-90">Terapkan</button> 
+									<button id="btnRekapCetak" class="px-4 py-2 rounded-lg bg-white/10 border border-white/15 hover:bg-white/15">Cetak / PDF</button> 
+								</div>
+							</div>
+							
+							<div id="adminLogView" class="mt-4 overflow-auto">
+								<table class="min-w-full text-sm">
+									<thead class="text-violet-200/80"> <tr class="border-b border-white/10"> <th class="text-left py-2 pr-2">Tanggal</th> <th class="text-left py-2 pr-2">Kelas</th> <th class="text-left py-2 pr-2">Siswa</th> <th class="text-left py-2 pr-2">Bangun</th> <th class="text-left py-2 pr-2">Ibadah (✔)</th> <th class="text-left py-2 pr-2">Olahraga (m)</th> <th class="text-left py-2 pr-2">Makan Sehat</th> <th class="text-left py-2 pr-2">Belajar (m)</th> <th class="text-left py-2 pr-2">Sosialisasi (m)</th> <th class="text-left py-2 pr-2">Tidur</th> <th class="text-left py-2 pr-2">Komentar</th> <th class="text-left py-2 pr-2">Status</th> </tr> </thead>
+									<tbody id="rekapTable"></tbody>
+								</table>
+							</div>
+
+							<div id="adminPredicateRecapView" class="hidden mt-4 overflow-auto">
+								<table id="adminPredicateRecapTable" class="min-w-full text-sm">
+									<thead class="text-violet-200/80">
+										<tr class="border-b border-white/10">
+											<th class="text-left py-2 pr-2">Kelas</th>
+											<th class="text-left py-2 pr-2">Bangun Pagi (% Biasa)</th>
+											<th class="text-left py-2 pr-2">Tidur Cepat (% Biasa)</th>
+											<th class="text-left py-2 pr-2">Ibadah (% Biasa)</th>
+											<th class="text-left py-2 pr-2">Olahraga (% Biasa)</th>
+											<th class="text-left py-2 pr-2">Belajar (% Biasa)</th>
+											<th class="text-left py-2 pr-2">Makan Sehat (% Biasa)</th>
+										</tr>
+									</thead>
+									<tbody id="adminPredicateRecapTableBody"></tbody>
+								</table>
+							</div>
+						</div>
+					</div>
                 </section>
 
                 <section id="guruView" class="hidden">
-                    <div class="glass rounded-2xl p-4 sm:p-6">
-                        <div class="print-only">
-                             <h2 class="text-white text-xl font-bold">Rekap Jurnal 7 Kebiasaan — Guru</h2>
-                             <div id="printGuruMeta" class="text-white text-sm"></div>
-                        </div>
-                        <div class="no-print flex flex-col gap-3">
-                            <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-3">
-                                <div> <h2 class="text-xl font-bold">Dashboard Guru</h2> <div id="guruInfo" class="text-sm text-violet-200/90">Memuat...</div> </div>
-                                <div class="flex flex-wrap items-end gap-2">
-                                    <div class="flex flex-col"> <label class="text-xs text-violet-200/80">Mode</label> <select id="guruMode" class="px-3 py-2 rounded-lg bg-black/75 border border-white/15"> <option value="harian">Harian</option> <option value="rentang">Rentang</option> </select> </div> <div id="guruFilterHarian" class="flex items-end gap-2"> <div> <label class="text-xs text-violet-200/80">Tanggal</label> <input id="filterTanggalGuru" type="date" class="px-3 py-2 rounded-lg bg-white/10 border border-white/15"> </div> </div> <div id="guruFilterRentang" class="hidden items-end gap-2"> <div> <label class="text-xs text-violet-200/80">Dari</label> <input id="guruDari" type="date" class="px-3 py-2 rounded-lg bg-white/10 border border-white/15"> </div> <div> <label class="text-xs text-violet-200/80">Sampai</label> <input id="guruSampai" type="date" class="px-3 py-2 rounded-lg bg-white/10 border border-white/15"> </div> <button id="guruTerapkanRange" class="px-3 py-2 rounded-lg bg-white/10 border border-white/15 hover:bg-white/15">Terapkan</button> </div> <select id="filterStatusGuru" class="px-3 py-2 rounded-lg bg-black/75 border border-white/15"> <option value="semua">Semua</option> <option value="terkirim">Terkirim</option> <option value="belum">Belum Kirim</option> <option value="larut">Tidur Larut</option> </select> <input id="filterNamaGuru" type="text" placeholder="Cari nama siswa..." class="px-3 py-2 rounded-lg bg-white/10 border border-white/15"> <button id="btnCetakGuru" class="px-3 py-2 rounded-lg bg-white/10 hover:bg-white/15 border border-white/15">Cetak / PDF</button>
-                                </div>
-                            </div>
-                            <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
-                                <div class="glass rounded-xl p-3"> <div class="text-xs text-violet-200/80">Jumlah Siswa Kelas</div> <div id="guruStatSiswa" class="text-2xl font-bold">0</div> <div class="text-xs text-violet-200/70">Kelas aktif: <span id="guruStatKelas">-</span></div> </div> <div class="glass rounded-xl p-3"> <div class="text-xs text-violet-200/80">Jurnal Terkirim</div> <div id="guruStatTerkirim" class="text-2xl font-bold">0</div> <div class="text-xs text-violet-200/70">Belum kirim: <span id="guruStatBelum">0</span></div> </div> <div class="glass rounded-xl p-3"> <div class="text-xs text-violet-200/80">Rata-rata Kebiasaan</div> <div class="text-sm mt-1 space-y-1"> <div class="flex items-center justify-between"><span>Ibadah (0–5)</span><span id="guruAvgIbadah" class="font-semibold">0</span></div> <div class="flex items-center justify-between"><span>Olahraga (m)</span><span id="guruAvgOlahraga" class="font-semibold">0</span></div> <div class="flex items-center justify-between"><span>Belajar (m)</span><span id="guruAvgBelajar" class="font-semibold">0</span></div> </div> </div> <div class="glass rounded-xl p-3"> <div class="text-xs text-violet-200/80">Kualitas Kebiasaan</div> <div class="text-sm mt-1 space-y-1"> <div class="flex items-center justify-between"><span>Makan Sehat</span><span id="guruRateMakan" class="font-semibold">0%</span></div> <div class="flex items-center justify-between"><span>Tidur Larut</span><span id="guruRateLarut" class="font-semibold">0%</span></div> </div> </div>
-                            </div>
-                        </div>
+					<div class="glass rounded-2xl p-4 sm:p-6">
+						<div class="print-only">
+							 <h2 class="text-white text-xl font-bold">Rekap Jurnal 7 Kebiasaan — Guru</h2>
+							 <div id="printGuruMeta" class="text-white text-sm"></div>
+						</div>
+						<div class="no-print flex flex-col gap-3">
+							<div class="flex flex-col md:flex-row md:items-end md:justify-between gap-3">
+								<div> 
+									<h2 class="text-xl font-bold">Dashboard Guru</h2> 
+									<div id="guruInfo" class="text-sm text-violet-200/90">Memuat...</div> 
+								</div> 
+								<div class="flex flex-wrap items-end gap-2">
+									<div class="flex flex-col"> 
+										<label class="text-xs text-violet-200/80">Mode</label> 
+										<select id="guruMode" class="px-3 py-2 rounded-lg bg-black/75 border border-white/15"> 
+											<option value="harian">Harian</option> 
+											<option value="rentang">Rentang</option>
+											<option value="predikat">Rekap Predikat</option> </select> 
+									</div> 
+									<div id="guruFilterHarian" class="flex items-end gap-2"> 
+										<div> 
+											<label class="text-xs text-violet-200/80">Tanggal</label> 
+											<input id="filterTanggalGuru" type="date" class="px-3 py-2 rounded-lg bg-white/10 border border-white/15"> 
+										</div> 
+									</div> 
+									<div id="guruFilterRentang" class="hidden items-end gap-2"> 
+										<div> <label class="text-xs text-violet-200/80">Dari</label> <input id="guruDari" type="date" class="px-3 py-2 rounded-lg bg-white/10 border border-white/15"> </div> 
+										<div> <label class="text-xs text-violet-200/80">Sampai</label> <input id="guruSampai" type="date" class="px-3 py-2 rounded-lg bg-white/10 border border-white/15"> </div> 
+										<button id="guruTerapkanRange" class="px-3 py-2 rounded-lg bg-white/10 border border-white/15 hover:bg-white/15">Terapkan</button> 
+									</div> 
+									<select id="filterStatusGuru" class="px-3 py-2 rounded-lg bg-black/75 border border-white/15"> <option value="semua">Semua</option> <option value="terkirim">Terkirim</option> <option value="belum">Belum Kirim</option> <option value="larut">Tidur Larut</option> </select> 
+									<input id="filterNamaGuru" type="text" placeholder="Cari nama siswa..." class="px-3 py-2 rounded-lg bg-white/10 border border-white/15"> 
+									<button id="btnCetakGuru" class="px-3 py-2 rounded-lg bg-white/10 hover:bg-white/15 border border-white/15">Cetak / PDF</button>
+								</div>
+							</div>
+							<div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+								<div class="glass rounded-xl p-3"> <div class="text-xs text-violet-200/80">Jumlah Siswa Kelas</div> <div id="guruStatSiswa" class="text-2xl font-bold">0</div> <div class="text-xs text-violet-200/70">Kelas aktif: <span id="guruStatKelas">-</span></div> </div> <div class="glass rounded-xl p-3"> <div class="text-xs text-violet-200/80">Jurnal Terkirim</div> <div id="guruStatTerkirim" class="text-2xl font-bold">0</div> <div class="text-xs text-violet-200/70">Belum kirim: <span id="guruStatBelum">0</span></div> </div> <div class="glass rounded-xl p-3"> <div class="text-xs text-violet-200/80">Rata-rata Kebiasaan</div> <div class="text-sm mt-1 space-y-1"> <div class="flex items-center justify-between"><span>Ibadah (0–5)</span><span id="guruAvgIbadah" class="font-semibold">0</span></div> <div class="flex items-center justify-between"><span>Olahraga (m)</span><span id="guruAvgOlahraga" class="font-semibold">0</span></div> <div class="flex items-center justify-between"><span>Belajar (m)</span><span id="guruAvgBelajar" class="font-semibold">0</span></div> </div> </div> <div class="glass rounded-xl p-3"> <div class="text-xs text-violet-200/80">Kualitas Kebiasaan</div> <div class="text-sm mt-1 space-y-1"> <div class="flex items-center justify-between"><span>Makan Sehat</span><span id="guruRateMakan" class="font-semibold">0%</span></div> <div class="flex items-center justify-between"><span>Tidur Larut</span><span id="guruRateLarut" class="font-semibold">0%</span></div> </div> </div>
+							</div>
+						</div>
 
-                        <div class="overflow-auto mt-4">
-                            <table class="min-w-full text-sm">
-                                <thead class="text-violet-200/80"> <tr class="border-b border-white/10"> <th class="text-left py-2 pr-2">Siswa</th> <th class="text-left py-2 pr-2">Tanggal</th> <th class="text-left py-2 pr-2">Bangun</th> <th class="text-left py-2 pr-2">Ibadah (✔)</th> <th class="text-left py-2 pr-2">Olahraga (m)</th> <th class="text-left py-2 pr-2">Makan Sehat</th> <th class="text-left py-2 pr-2">Belajar (m)</th> <th class="text-left py-2 pr-2">Sosialisasi (m)</th> <th class="text-left py-2 pr-2">Tidur</th> <th class="text-left py-2 pr-2">Komentar</th> <th class="text-left py-2 pr-2">Status</th> </tr> </thead>
-                                <tbody id="guruJournalTable"></tbody>
-                            </table>
-                        </div>
-                        </div>
-                </section>
+						<div id="guruJournalView" class="overflow-auto mt-4">
+							<table class="min-w-full text-sm">
+								<thead class="text-violet-200/80"> <tr class="border-b border-white/10"> <th class="text-left py-2 pr-2">Siswa</th> <th class="text-left py-2 pr-2">Tanggal</th> <th class="text-left py-2 pr-2">Bangun</th> <th class="text-left py-2 pr-2">Ibadah (✔)</th> <th class="text-left py-2 pr-2">Olahraga (m)</th> <th class="text-left py-2 pr-2">Makan Sehat</th> <th class="text-left py-2 pr-2">Belajar (m)</th> <th class="text-left py-2 pr-2">Sosialisasi (m)</th> <th class="text-left py-2 pr-2">Tidur</th> <th class="text-left py-2 pr-2">Komentar</th> <th class="text-left py-2 pr-2">Status</th> </tr> </thead>
+								<tbody id="guruJournalTable"></tbody>
+							</table>
+						</div>
+
+						<div id="guruPredicateView" class="hidden overflow-auto mt-4">
+							<table id="guruPredicateTable" class="min-w-full text-sm">
+								<thead class="text-violet-200/80">
+									<tr class="border-b border-white/10">
+										<th class="text-left py-2 pr-2">Siswa</th>
+										<th class="text-left py-2 pr-2">Bangun Pagi</th>
+										<th class="text-left py-2 pr-2">Tidur Cepat</th>
+										<th class="text-left py-2 pr-2">Ibadah</th>
+										<th class="text-left py-2 pr-2">Olahraga</th>
+										<th class="text-left py-2 pr-2">Belajar</th>
+										<th class="text-left py-2 pr-2">Makan Sehat</th>
+										<th class="text-left py-2 pr-2">Aksi</th>
+									</tr>
+								</thead>
+								<tbody id="guruPredicateTableBody"></tbody>
+							</table>
+						</div>
+					</div>
+				</section>
 
                 <section id="siswaView" class="hidden">
                     <div class="glass rounded-2xl p-4 sm:p-6">
@@ -547,877 +620,836 @@
         </footer>
     </div>
 
-<script>
-// <<<APPS SCRIPT INTEGRATION>>>
-        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzOscQcYhqGsKQiW1GXeozYI5sqc_50FSEUR_DA2bCbgp-yBzmM-2gQEHXbv8qq8p9o/exec';
-        // <<<APPS SCRIPT INTEGRATION - END>>>
-        
-        // ============== Utilities ==============
-        const $ = (q) => document.querySelector(q);
-        const $$ = (q) => document.querySelectorAll(q);
-        const uid = () => Math.random().toString(36).slice(2,9);
-        const todayStr = () => { const d=new Date(); const mm=String(d.getMonth()+1).padStart(2,'0'); const dd=String(d.getDate()).padStart(2,'0'); return `${d.getFullYear()}-${mm}-${dd}`; };
-        const fmtDateID = (yyyyMMdd) => { 
-            if (!yyyyMMdd || yyyyMMdd === 'Invalid Date' || !String(yyyyMMdd).includes('-')) return yyyyyMMdd;
+ <script>
+    // <<<APPS SCRIPT INTEGRATION>>>
+    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzOscQcYhqGsKQiW1GXeozYI5sqc_50FSEUR_DA2bCbgp-yBzmM-2gQEHXbv8qq8p9o/exec';
+    // <<<APPS SCRIPT INTEGRATION - END>>>
+    
+    // --- Konstanta untuk logika predikat ---
+    const BATAS_BANGUN_PAGI = '07:00';
+    const BATAS_TIDUR_CEPAT = '22:00';
+    
+    // ============== Utilities ==============
+    const $ = (q) => document.querySelector(q);
+    const $$ = (q) => document.querySelectorAll(q);
+    const uid = () => Math.random().toString(36).slice(2,9);
+    const todayStr = () => { const d=new Date(); const mm=String(d.getMonth()+1).padStart(2,'0'); const dd=String(d.getDate()).padStart(2,'0'); return `${d.getFullYear()}-${mm}-${dd}`; };
+    const fmtDateID = (yyyyMMdd) => { 
+        if (!yyyyMMdd || yyyyMMdd === 'Invalid Date' || !String(yyyyMMdd).includes('-')) return yyyyyMMdd;
+        try {
+            const [y,m,d]=String(yyyyMMdd).split('-').map(Number);
+            const dt=new Date(y,m-1,d); 
+            return dt.toLocaleDateString('id-ID',{weekday:'long',year:'numeric',month:'long',day:'numeric'}); 
+        } catch (e) { return String(yyyyMMdd); }
+    };
+    const timeToMin = (hhmm) => { if(!hhmm) return null; const [h,m]=hhmm.split(':').map(Number); return h*60+m; };
+    const escapeHtml = (s) => String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
+    const toCSV = (rows) => rows.map(r => r.map(v => { const s=String(v??''); return (s.includes(',')||s.includes('"')||s.includes('\n')) ? `"${s.replace(/"/g,'""')}"` : s; }).join(',')).join('\n');
+    function flash(msg){ const div=document.createElement('div'); div.className='no-print fixed bottom-5 left-1/2 -translate-x-1/2 px-4 py-2 rounded-xl bg-white text-black font-medium shadow ring-brand'; div.textContent=msg; document.body.appendChild(div); setTimeout(()=>div.remove(),2200); }
+
+    // ============== State & Storage ==============
+    const STORAGE_KEY = 'jurnal7_v4_refactored';
+    let state = {
+        school: { name:'SMP Negeri 5 Kota Bekasi', npsn:'', alamat:'', kepsek:'' },
+        user: null,
+        teachers: [],
+        students: [],
+        journals: [],
+        adminPassword: 'admin'
+    };
+
+    function saveState(){ localStorage.setItem(STORAGE_KEY, JSON.stringify({ user: state.user })); }
+    function loadStateFromStorage() {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (raw) {
             try {
-                const [y,m,d]=String(yyyyMMdd).split('-').map(Number);
-                const dt=new Date(y,m-1,d); 
-                return dt.toLocaleDateString('id-ID',{weekday:'long',year:'numeric',month:'long',day:'numeric'}); 
-            } catch (e) { return String(yyyyMMdd); }
-        };
-        const timeToMin = (hhmm) => { if(!hhmm) return null; const [h,m]=hhmm.split(':').map(Number); return h*60+m; };
-        const escapeHtml = (s) => String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
-        const toCSV = (rows) => rows.map(r => r.map(v => { const s=String(v??''); return (s.includes(',')||s.includes('"')||s.includes('\n')) ? `"${s.replace(/"/g,'""')}"` : s; }).join(',')).join('\n');
-        function flash(msg){ const div=document.createElement('div'); div.className='no-print fixed bottom-5 left-1/2 -translate-x-1/2 px-4 py-2 rounded-xl bg-white text-black font-medium shadow ring-brand'; div.textContent=msg; document.body.appendChild(div); setTimeout(()=>div.remove(),2200); }
-
-        // ============== State & Storage ==============
-        const STORAGE_KEY = 'jurnal7_v4_refactored';
-        let state = {
-            school: { name:'SMP Negeri 5 Kota Bekasi', npsn:'', alamat:'', kepsek:'' },
-            user: null,
-            teachers: [],
-            students: [],
-            journals: [],
-            adminPassword: 'admin'
-        };
-
-        function saveState(){ localStorage.setItem(STORAGE_KEY, JSON.stringify({ user: state.user })); }
-        function loadStateFromStorage() {
-            const raw = localStorage.getItem(STORAGE_KEY);
-            if (raw) {
-                try {
-                    const data = JSON.parse(raw);
-                    state.user = data.user || null;
-                } catch(e) { state.user = null; }
+                const data = JSON.parse(raw);
+                state.user = data.user || null;
+            } catch(e) { state.user = null; }
+        }
+    }
+    
+    async function fetchFromServer(action, params = {}) {
+        const url = new URL(APPS_SCRIPT_URL);
+        url.searchParams.append('action', action);
+        for (const key in params) {
+            url.searchParams.append(key, params[key]);
+        }
+        try {
+            const response = await fetch(url);
+            if (!response.ok) throw new Error(`Server returned status ${response.status}`);
+            const result = await response.json();
+            if (result.status === 'success') {
+                return result.data;
+            } else {
+                throw new Error(result.message);
             }
+        } catch (error) {
+            flash('Gagal terhubung ke server: ' + error.message);
+            console.error('Fetch error:', error);
+            return null;
         }
-        
-        async function fetchFromServer(action, params = {}) {
-            const url = new URL(APPS_SCRIPT_URL);
-            url.searchParams.append('action', action);
-            for (const key in params) {
-                url.searchParams.append(key, params[key]);
-            }
-            try {
-                const response = await fetch(url);
-                if (!response.ok) throw new Error(`Server returned status ${response.status}`);
-                const result = await response.json();
-                if (result.status === 'success') {
-                    return result.data;
-                } else {
-                    throw new Error(result.message);
-                }
-            } catch (error) {
-                flash('Gagal terhubung ke server: ' + error.message);
-                console.error('Fetch error:', error);
-                return null;
-            }
-        }
+    }
 
-        async function postToServer(action, payload) {
-            try {
-                const response = await fetch(APPS_SCRIPT_URL, {
-                    method: 'POST',
-                    mode: 'cors',
-                    cache: 'no-cache',
-                    headers: { 'Content-Type': 'text/plain' },
-                    body: JSON.stringify({ action, payload })
-                });
-                if (!response.ok) throw new Error(`Server returned status ${response.status}`);
-                const result = await response.json();
-                if (result.status === 'success') {
-                    return result.data;
-                } else {
-                    throw new Error(result.message);
-                }
-            } catch (error) {
-                flash('Gagal mengirim data: ' + error.message);
-                console.error('Post error:', error);
-                return null;
-            }
-        }
-
-        // ============== Global UI ==============
-        function updateSchoolUI(){
-            $('#schoolNameDisplay').textContent = state.school.name || 'Nama Sekolah';
-            $('#schoolInfoTiny').textContent = state.school.npsn ? `NPSN ${state.school.npsn}` : '';
-        }
-        function setRoleBadge(){
-            const badge = $('#roleBadge');
-            if (!state.user) { badge.classList.add('hidden'); $('#btnKeluar').classList.add('hidden'); return; }
-            badge.classList.remove('hidden'); $('#btnKeluar').classList.remove('hidden');
-            if (state.user.role==='admin') badge.textContent='ADMIN';
-            if (state.user.role==='guru') badge.textContent=`GURU • ${state.user.name} • ${state.user.kelas}`;
-            if (state.user.role==='siswa') badge.textContent=`SISWA • ${state.user.name} • ${state.user.kelas}`;
-        }
-        function showSection(id){ ['roleGate','adminView','guruView','siswaView'].forEach(x=>document.getElementById(x).classList.toggle('hidden', x!==id)); }
-
-        // ============== Role Gate & Login ==============
-        function attachRoleGate(){
-            $$('#roleGate [data-role]').forEach(btn=>{
-                btn.addEventListener('click',()=> openIdentity(btn.getAttribute('data-role')));
+    async function postToServer(action, payload) {
+        try {
+            const response = await fetch(APPS_SCRIPT_URL, {
+                method: 'POST',
+                mode: 'cors',
+                cache: 'no-cache',
+                headers: { 'Content-Type': 'text/plain' },
+                body: JSON.stringify({ action, payload })
             });
-            $('#btnKeluar').addEventListener('click',()=>{ 
-                state.user=null;
-                state.journals = [];
-                localStorage.removeItem(STORAGE_KEY);
-                setRoleBadge(); 
-                showSection('roleGate'); 
-            });
-        }
-        
-        let identityRole=null;
-        function openIdentity(role){
-            identityRole=role;
-            const identityContent = $('#identityContent');
-            const confirmBtn = $('#identityConfirm');
-            
-            confirmBtn.style.display = 'block';
-            confirmBtn.textContent = 'Lanjut';
-            
-            if (role === 'admin') {
-                $('#identityTitle').textContent = 'Masuk sebagai Admin';
-                identityContent.innerHTML = `<label class="block text-sm mb-1">Kata Sandi Admin</label><input id="adminPasswordInput" type="password" class="w-full px-3 py-2 rounded-lg bg-white/10 border border-white/15">`;
-                confirmBtn.onclick = onAdminLogin;
-            } else if (role === 'guru') {
-                $('#identityTitle').textContent = 'Pilih Guru';
-                identityContent.innerHTML = `<label class="block text-sm mb-1">Pilih Nama Guru</label>
-                    <select id="userSelect" class="w-full px-3 py-2 rounded-lg bg-black/75 border border-white/15">
-                        <option value="">-- Pilih Guru --</option>
-                        ${state.teachers.map(g => `<option value="${g.id}">${g.name} (${g.kelas})</option>`).join('')}
-                    </select>
-                    <label class="block text-sm mt-3 mb-1">Kata Sandi</label>
-                    <input id="passwordInput" type="password" class="w-full px-3 py-2 rounded-lg bg-white/10 border border-white/15">`;
-                confirmBtn.onclick = onGuruLogin;
-            } else if (role === 'siswa') {
-                $('#identityTitle').textContent = 'Pilih Siswa';
-                const classes = [...new Set(state.students.map(s => s.kelas))].sort();
-                identityContent.innerHTML = `<label class="block text-sm mb-1">Pilih Kelas</label>
-                    <select id="classSelect" class="w-full px-3 py-2 rounded-lg bg-black/75 border border-white/15">
-                        <option value="">-- Pilih Kelas --</option>
-                        ${classes.map(c => `<option value="${c}">${c}</option>`).join('')}
-                    </select>
-                    <div id="userSelectContainer" class="hidden mt-3">
-                        <label class="block text-sm mb-1">Pilih Nama Siswa</label>
-                        <select id="userSelect" class="w-full px-3 py-2 rounded-lg bg-black/75 border border-white/15"></select>
-                    </div>
-                    <div id="passwordInputContainer" class="hidden mt-3">
-                        <label class="block text-sm mb-1">Kata Sandi</label>
-                        <input id="passwordInput" type="password" class="w-full px-3 py-2 rounded-lg bg-white/10 border border-white/15">
-                    </div>`;
-                $('#classSelect').onchange = (e) => {
-                    const kelas = e.target.value;
-                    const userSelect = $('#userSelect');
-                    userSelect.innerHTML = '<option value="">-- Pilih Siswa --</option>';
-                    if (kelas) {
-                        state.students.filter(s => s.kelas === kelas).forEach(s => {
-                            const opt = document.createElement('option'); opt.value = s.id; opt.textContent = s.name; userSelect.appendChild(opt);
-                        });
-                        $('#userSelectContainer').classList.remove('hidden');
-                        $('#passwordInputContainer').classList.remove('hidden');
-                    } else {
-                        $('#userSelectContainer').classList.add('hidden');
-                        $('#passwordInputContainer').classList.add('hidden');
-                    }
-                };
-                confirmBtn.onclick = onSiswaLogin;
+            if (!response.ok) throw new Error(`Server returned status ${response.status}`);
+            const result = await response.json();
+            if (result.status === 'success') {
+                return result.data;
+            } else {
+                throw new Error(result.message);
             }
-            $('#identityModal').classList.remove('hidden');
+        } catch (error) {
+            flash('Gagal mengirim data: ' + error.message);
+            console.error('Post error:', error);
+            return null;
         }
-        function closeIdentity(){ identityRole=null; $('#identityModal').classList.add('hidden'); }
-        $('#closeIdentity').addEventListener('click', closeIdentity);
+    }
 
-        async function onAdminLogin() {
-            const password = $('#adminPasswordInput').value;
-            if (password === state.adminPassword) {
-                state.user = { role: 'admin', id: 'admin', name: 'Admin', kelas: '-' };
-                showSection('adminView');
-                closeIdentity();
+    // ============== Global UI ==============
+    function updateSchoolUI(){
+        $('#schoolNameDisplay').textContent = state.school.name || 'Nama Sekolah';
+        $('#schoolInfoTiny').textContent = state.school.npsn ? `NPSN ${state.school.npsn}` : '';
+    }
+    function setRoleBadge(){
+        const badge = $('#roleBadge');
+        if (!state.user) { badge.classList.add('hidden'); $('#btnKeluar').classList.add('hidden'); return; }
+        badge.classList.remove('hidden'); $('#btnKeluar').classList.remove('hidden');
+        if (state.user.role==='admin') badge.textContent='ADMIN';
+        if (state.user.role==='guru') badge.textContent=`GURU • ${state.user.name} • ${state.user.kelas}`;
+        if (state.user.role==='siswa') badge.textContent=`SISWA • ${state.user.name} • ${state.user.kelas}`;
+    }
+    function showSection(id){ ['roleGate','adminView','guruView','siswaView'].forEach(x=>document.getElementById(x).classList.toggle('hidden', x!==id)); }
+
+    // ============== Role Gate & Login ==============
+    function attachRoleGate(){
+        $$('#roleGate [data-role]').forEach(btn=>{
+            btn.addEventListener('click',()=> openIdentity(btn.getAttribute('data-role')));
+        });
+        $('#btnKeluar').addEventListener('click',()=>{ 
+            state.user=null;
+            state.journals = [];
+            localStorage.removeItem(STORAGE_KEY);
+            setRoleBadge(); 
+            showSection('roleGate'); 
+        });
+    }
+    
+    let identityRole=null;
+    function openIdentity(role){
+        identityRole=role;
+        const identityContent = $('#identityContent');
+        const confirmBtn = $('#identityConfirm');
+        
+        confirmBtn.style.display = 'block';
+        confirmBtn.textContent = 'Lanjut';
+        
+        if (role === 'admin') {
+            $('#identityTitle').textContent = 'Masuk sebagai Admin';
+            identityContent.innerHTML = `<label class="block text-sm mb-1">Kata Sandi Admin</label><input id="adminPasswordInput" type="password" class="w-full px-3 py-2 rounded-lg bg-white/10 border border-white/15">`;
+            confirmBtn.onclick = onAdminLogin;
+        } else if (role === 'guru') {
+            $('#identityTitle').textContent = 'Pilih Guru';
+            identityContent.innerHTML = `<label class="block text-sm mb-1">Pilih Nama Guru</label>
+                <select id="userSelect" class="w-full px-3 py-2 rounded-lg bg-black/75 border border-white/15">
+                    <option value="">-- Pilih Guru --</option>
+                    ${state.teachers.map(g => `<option value="${g.id}">${g.name} (${g.kelas})</option>`).join('')}
+                </select>
+                <label class="block text-sm mt-3 mb-1">Kata Sandi</label>
+                <input id="passwordInput" type="password" class="w-full px-3 py-2 rounded-lg bg-white/10 border border-white/15">`;
+            confirmBtn.onclick = onGuruLogin;
+        } else if (role === 'siswa') {
+            $('#identityTitle').textContent = 'Pilih Siswa';
+            const classes = [...new Set(state.students.map(s => s.kelas))].sort();
+            identityContent.innerHTML = `<label class="block text-sm mb-1">Pilih Kelas</label>
+                <select id="classSelect" class="w-full px-3 py-2 rounded-lg bg-black/75 border border-white/15">
+                    <option value="">-- Pilih Kelas --</option>
+                    ${classes.map(c => `<option value="${c}">${c}</option>`).join('')}
+                </select>
+                <div id="userSelectContainer" class="hidden mt-3">
+                    <label class="block text-sm mb-1">Pilih Nama Siswa</label>
+                    <select id="userSelect" class="w-full px-3 py-2 rounded-lg bg-black/75 border border-white/15"></select>
+                </div>
+                <div id="passwordInputContainer" class="hidden mt-3">
+                    <label class="block text-sm mb-1">Kata Sandi</label>
+                    <input id="passwordInput" type="password" class="w-full px-3 py-2 rounded-lg bg-white/10 border border-white/15">
+                </div>`;
+            $('#classSelect').onchange = (e) => {
+                const kelas = e.target.value;
+                const userSelect = $('#userSelect');
+                userSelect.innerHTML = '<option value="">-- Pilih Siswa --</option>';
+                if (kelas) {
+                    state.students.filter(s => s.kelas === kelas).forEach(s => {
+                        const opt = document.createElement('option'); opt.value = s.id; opt.textContent = s.name; userSelect.appendChild(opt);
+                    });
+                    $('#userSelectContainer').classList.remove('hidden');
+                    $('#passwordInputContainer').classList.remove('hidden');
+                } else {
+                    $('#userSelectContainer').classList.add('hidden');
+                    $('#passwordInputContainer').classList.add('hidden');
+                }
+            };
+            confirmBtn.onclick = onSiswaLogin;
+        }
+        $('#identityModal').classList.remove('hidden');
+    }
+    function closeIdentity(){ identityRole=null; $('#identityModal').classList.add('hidden'); }
+    $('#closeIdentity').addEventListener('click', closeIdentity);
+
+    async function onAdminLogin() {
+        const password = $('#adminPasswordInput').value;
+        if (password === state.adminPassword) {
+            state.user = { role: 'admin', id: 'admin', name: 'Admin', kelas: '-' };
+            showSection('adminView');
+            closeIdentity();
+            saveState();
+            setRoleBadge();
+            renderAdmin();
+        } else { alert('Kata sandi salah.'); }
+    }
+
+    async function onGuruLogin() {
+        const userId = $('#userSelect').value;
+        const password = $('#passwordInput').value;
+        const user = state.teachers.find(u => String(u.id) === String(userId));
+        if (user && password === user.password) {
+            state.user = { role: 'guru', id: user.id, name: user.name, kelas: user.kelas };
+            flash(`Selamat datang, ${user.name}! Memuat data jurnal...`);
+            closeIdentity();
+            const journals = await fetchFromServer('getGuruData', { kelas: user.kelas });
+            if (journals) {
+                state.journals = journals;
                 saveState();
                 setRoleBadge();
-                renderAdmin();
-            } else { alert('Kata sandi salah.'); }
-        }
+                showSection('guruView');
+                renderGuru();
+            }
+        } else { alert('Pilihan guru atau kata sandi salah.'); }
+    }
 
-        async function onGuruLogin() {
-            const userId = $('#userSelect').value;
-            const password = $('#passwordInput').value;
-            const user = state.teachers.find(u => String(u.id) === String(userId));
-            if (user && password === user.password) {
-                state.user = { role: 'guru', id: user.id, name: user.name, kelas: user.kelas };
-                flash(`Selamat datang, ${user.name}! Memuat data jurnal...`);
-                closeIdentity();
-                const journals = await fetchFromServer('getGuruData', { kelas: user.kelas });
-                if (journals) {
-                    state.journals = journals;
-                    saveState();
-                    setRoleBadge();
-                    showSection('guruView');
-                    renderGuru();
-                }
-            } else { alert('Pilihan guru atau kata sandi salah.'); }
-        }
+    async function onSiswaLogin() {
+        const userId = $('#userSelect').value;
+        const password = $('#passwordInput').value;
+        const user = state.students.find(s => String(s.id) === String(userId));
+        if (user && password === user.password) {
+            state.user = { role: 'siswa', id: user.id, name: user.name, kelas: user.kelas };
+            flash(`Selamat datang, ${user.name}! Memuat data jurnal...`);
+            closeIdentity();
+            const journals = await fetchFromServer('getSiswaData', { studentId: user.id });
+            if (journals) {
+                state.journals = journals;
+                saveState();
+                setRoleBadge();
+                showSection('siswaView');
+                renderSiswa();
+            }
+        } else { alert('Pilihan siswa atau kata sandi salah.'); }
+    }
+    
+    // ============== Admin View ==============
+    let adminRekapViewMode = 'log'; 
 
-        async function onSiswaLogin() {
-            const userId = $('#userSelect').value;
-            const password = $('#passwordInput').value;
-            const user = state.students.find(s => String(s.id) === String(userId));
-            if (user && password === user.password) {
-                state.user = { role: 'siswa', id: user.id, name: user.name, kelas: user.kelas };
-                flash(`Selamat datang, ${user.name}! Memuat data jurnal...`);
-                closeIdentity();
-                const journals = await fetchFromServer('getSiswaData', { studentId: user.id });
-                if (journals) {
-                    state.journals = journals;
-                    saveState();
-                    setRoleBadge();
-                    showSection('siswaView');
-                    renderSiswa();
-                }
-            } else { alert('Pilihan siswa atau kata sandi salah.'); }
-        }
+    function renderAdmin(){
+        $('#bioNama').value = state.school.name || '';
+        $('#bioNpsn').value = state.school.npsn || '';
+        $('#bioAlamat').value = state.school.alamat || '';
+        $('#bioKepsek').value = state.school.kepsek || '';
+        $('#biodataPreview').innerHTML = `
+            <div><strong>Sekolah:</strong> ${escapeHtml(state.school.name||'-')}</div>
+            <div><strong>NPSN:</strong> ${escapeHtml(state.school.npsn||'-')}</div>
+            <div><strong>Alamat:</strong> ${escapeHtml(state.school.alamat||'-')}</div>
+            <div><strong>Kepala Sekolah:</strong> ${escapeHtml(state.school.kepsek||'-')}</div>
+        `;
+        const set = new Set(state.students.map(s=>s.kelas));
+        const sel = $('#rekapKelas');
+        sel.innerHTML = `<option value="ALL">Semua Kelas</option>`;
+        [...set].sort().forEach(k=>{
+            const opt=document.createElement('option'); opt.value=k; opt.textContent=k; sel.appendChild(opt);
+        });
         
-        // ============== Admin View ==============
-        function renderAdmin(){
-            $('#bioNama').value = state.school.name || '';
-            $('#bioNpsn').value = state.school.npsn || '';
-            $('#bioAlamat').value = state.school.alamat || '';
-            $('#bioKepsek').value = state.school.kepsek || '';
-            $('#biodataPreview').innerHTML = `
-                <div><strong>Sekolah:</strong> ${escapeHtml(state.school.name||'-')}</div>
-                <div><strong>NPSN:</strong> ${escapeHtml(state.school.npsn||'-')}</div>
-                <div><strong>Alamat:</strong> ${escapeHtml(state.school.alamat||'-')}</div>
-                <div><strong>Kepala Sekolah:</strong> ${escapeHtml(state.school.kepsek||'-')}</div>
-            `;
-            const set = new Set(state.students.map(s=>s.kelas));
-            const sel = $('#rekapKelas');
-            sel.innerHTML = `<option value="ALL">Semua Kelas</option>`;
-            [...set].sort().forEach(k=>{
-                const opt=document.createElement('option'); opt.value=k; opt.textContent=k; sel.appendChild(opt);
-            });
-            
-            const tabs = $$('.admin-tab');
-            const setTab = (key) => {
-                tabs.forEach(t=>t.classList.remove('bg-white/10','border-white/10','border-b-0'));
-                const btn=[...tabs].find(t=>t.getAttribute('data-admintab')===key);
-                btn?.classList.add('bg-white/10','border-white/10','border-b-0');
-                $('#tabBiodata').classList.toggle('hidden', key!=='biodata');
-                $('#tabGuru').classList.toggle('hidden', key!=='guru');
-                $('#tabSiswa').classList.toggle('hidden', key!=='siswa');
-                $('#tabRekap').classList.toggle('hidden', key!=='rekap');
-            };
-            tabs.forEach(btn=>btn.addEventListener('click',()=>setTab(btn.getAttribute('data-admintab'))));
-            
-            const today = todayStr();
-            $('#rekapDari').value=today;
-            $('#rekapSampai').value=today;
+        const tabs = $$('.admin-tab');
+        const setTab = (key) => {
+            tabs.forEach(t=>t.classList.remove('bg-white/10','border-white/10','border-b-0'));
+            const btn=[...tabs].find(t=>t.getAttribute('data-admintab')===key);
+            btn?.classList.add('bg-white/10','border-white/10','border-b-0');
+            $('#tabBiodata').classList.toggle('hidden', key!=='biodata');
+            $('#tabGuru').classList.toggle('hidden', key!=='guru');
+            $('#tabSiswa').classList.toggle('hidden', key!=='siswa');
+            $('#tabRekap').classList.toggle('hidden', key!=='rekap');
+        };
+        tabs.forEach(btn=>btn.addEventListener('click',()=>setTab(btn.getAttribute('data-admintab'))));
+        
+        const today = todayStr();
+        $('#rekapDari').value=today;
+        $('#rekapSampai').value=today;
 
-            renderLists();
+        renderLists();
+        
+        $('#adminRekapViewLog').addEventListener('click', () => {
+            adminRekapViewMode = 'log';
+            $('#adminRekapViewLog').classList.add('bg-white/10');
+            $('#adminRekapViewPredicate').classList.remove('bg-white/10');
             updateAdminRekap();
-            setTab('biodata');
-        }
+        });
+        $('#adminRekapViewPredicate').addEventListener('click', () => {
+            adminRekapViewMode = 'predicate';
+            $('#adminRekapViewPredicate').classList.add('bg-white/10');
+            $('#adminRekapViewLog').classList.remove('bg-white/10');
+            updateAdminRekap();
+        });
 
-        async function onSimpanBiodata(e){
-            e.preventDefault();
-            const data = {
-                name: $('#bioNama').value.trim(),
-                npsn: $('#bioNpsn').value.trim(),
-                alamat: $('#bioAlamat').value.trim(),
-                kepsek: $('#bioKepsek').value.trim()
+        updateAdminRekap();
+        setTab('biodata');
+    }
+
+    async function onSimpanBiodata(e){ e.preventDefault(); const data = { name: $('#bioNama').value.trim(), npsn: $('#bioNpsn').value.trim(), alamat: $('#bioAlamat').value.trim(), kepsek: $('#bioKepsek').value.trim() }; const result = await postToServer('saveSchoolData', { school: data }); if(result){ state.school = result; flash('Biodata sekolah disimpan!'); renderAdmin(); } }
+    async function onAddGuru(e) { e.preventDefault(); const name=$('#guruNama').value.trim(); const kelas=$('#guruKelas').value.trim(); const password = $('#guruPassword').value.trim(); if(!name||!kelas||!password) { return alert('Nama, kelas, dan kata sandi harus diisi.'); } const result = await postToServer('addGuru', { guru: { name, kelas, password } }); if(result){ state.teachers.push(result); renderLists(); flash('Guru ditambahkan'); $('#formAddGuru').reset(); } }
+    async function onDeleteGuru(id) { if (!confirm('Yakin ingin menghapus guru ini?')) return; const result = await postToServer('deleteGuru', { id }); if(result){ state.teachers = state.teachers.filter(t => String(t.id) !== String(id)); renderLists(); flash('Guru dihapus'); } }
+    async function onAddSiswa(e) { e.preventDefault(); const name=$('#siswaNama').value.trim(); const kelas=$('#siswaKelas').value.trim(); const password = $('#siswaPassword').value.trim(); if(!name||!kelas||!password) { return alert('Nama, kelas, dan kata sandi harus diisi.'); } const result = await postToServer('addSiswa', { siswa: { name, kelas, password } }); if(result){ state.students.push(result); renderLists(); flash('Siswa ditambahkan'); $('#formAddSiswa').reset(); } }
+    async function onDeleteSiswa(id) { if (!confirm('Yakin ingin menghapus siswa ini? Ini akan menghapus semua jurnalnya.')) return; const result = await postToServer('deleteSiswa', { id }); if(result){ state.students = state.students.filter(s => String(s.id) !== String(id)); renderLists(); flash('Siswa dihapus'); } }
+    function renderLists(){ const gt=$('#guruTable'); gt.innerHTML=''; state.teachers.forEach(t=>{ const tr=document.createElement('tr'); tr.className='border-b border-white/10'; tr.innerHTML=`<td class="py-2 pr-2">${escapeHtml(t.name)}</td> <td class="py-2 pr-2">${escapeHtml(t.kelas)}</td> <td class="py-2 pr-2"><button data-id="${t.id}" class="btnDelGuru px-2 py-1 rounded bg-white/10 hover:bg-white/15 border border-white/15 text-xs">Hapus</button></td>`; gt.appendChild(tr); }); gt.querySelectorAll('.btnDelGuru').forEach(b=>b.addEventListener('click',()=> onDeleteGuru(b.getAttribute('data-id')))); const st=$('#siswaTable'); st.innerHTML=''; state.students.forEach(s=>{ const tr=document.createElement('tr'); tr.className='border-b border-white/10'; tr.innerHTML=`<td class="py-2 pr-2">${escapeHtml(s.name)}</td> <td class="py-2 pr-2">${escapeHtml(s.kelas)}</td> <td class="py-2 pr-2"><button data-id="${s.id}" class="btnDelSiswa px-2 py-1 rounded bg-white/10 hover:bg-white/15 border border-white/15 text-xs">Hapus</button></td>`; st.appendChild(tr); }); st.querySelectorAll('.btnDelSiswa').forEach(b=>b.addEventListener('click',()=> onDeleteSiswa(b.getAttribute('data-id')))); $('#guruCount').textContent = String(state.teachers.length); $('#siswaCount').textContent = String(state.students.length); }
+    
+    async function updateAdminRekap(){
+        const logView = $('#adminLogView');
+        const predicateView = $('#adminPredicateRecapView');
+        const kelas = $('#rekapKelas').value;
+        const dari = $('#rekapDari').value || todayStr();
+        const sampai = $('#rekapSampai').value || todayStr();
+        
+        flash('Mengambil data rekap dari server...');
+        const journals = await fetchFromServer('getAdminRekap', { kelas, dari, sampai });
+
+        if (!journals) {
+            flash('Gagal mengambil data rekap.');
+            $('#rekapTable').innerHTML = '<tr><td colspan="12" class="text-center py-4 text-violet-300">Gagal memuat data.</td></tr>';
+            $('#adminPredicateRecapTableBody').innerHTML = '<tr><td colspan="7" class="text-center py-4 text-violet-300">Gagal memuat data.</td></tr>';
+            return;
+        }
+        
+        if(adminRekapViewMode === 'log') {
+            logView.classList.remove('hidden');
+            predicateView.classList.add('hidden');
+            renderAdminLogTable(journals);
+        } else {
+            logView.classList.add('hidden');
+            predicateView.classList.remove('hidden');
+            renderAdminPredicateRecap(journals);
+        }
+    }
+
+    function renderAdminLogTable(journals) {
+        const tbody = $('#rekapTable');
+        tbody.innerHTML = '';
+        const submittedJournals = journals.filter(j => j.submitted === true || j.submitted === 'TRUE' || j.submitted === 1);
+        if (submittedJournals.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="12" class="text-center py-4 text-violet-300">Tidak ada jurnal terkirim pada rentang ini.</td></tr>`;
+            return;
+        }
+        const rows = submittedJournals.map(j => {
+            const s = state.students.find(s => String(s.id) === String(j.studentId)) || {name: 'Siswa Dihapus', kelas: '-'};
+            const ibadahCount = (j.ibadahSubuh?1:0) + (j.ibadahDzuhur?1:0) + (j.ibadahAshar?1:0) + (j.ibadahMaghrib?1:0) + (j.ibadahIsya?1:0);
+            return {
+                tanggal: j.date, kelas:s.kelas, siswa:s.name, bangun: j.bangun || '-', ib: ibadahCount,
+                olahraga: j.olahragaMenit || 0, makan: j.makanYa ? 'Ya' : 'Tidak', belajar: j.belajarMenit || 0,
+                sos: j.sosMenit || 0, tidur: j.tidurJam || '-', status: j.tidurLarut ? 'Tidur Larut' : 'Terkirim',
+                komentar: (j.comments?.length||0)
             };
-            const result = await postToServer('saveSchoolData', { school: data });
-            if(result){
-                state.school = result;
-                flash('Biodata sekolah disimpan!');
-                renderAdmin();
-            }
-        }
-        
-        async function onAddGuru(e) {
-            e.preventDefault();
-            const name=$('#guruNama').value.trim(); const kelas=$('#guruKelas').value.trim(); const password = $('#guruPassword').value.trim();
-            if(!name||!kelas||!password) { return alert('Nama, kelas, dan kata sandi harus diisi.'); }
-            const result = await postToServer('addGuru', { guru: { name, kelas, password } });
-            if(result){
-                state.teachers.push(result);
-                renderLists();
-                flash('Guru ditambahkan');
-                $('#formAddGuru').reset();
-            }
-        }
-        
-        async function onDeleteGuru(id) {
-            if (!confirm('Yakin ingin menghapus guru ini?')) return;
-            const result = await postToServer('deleteGuru', { id });
-            if(result){
-                state.teachers = state.teachers.filter(t => String(t.id) !== String(id));
-                renderLists();
-                flash('Guru dihapus');
-            }
+        });
+        rows.sort((a,b)=> a.tanggal.localeCompare(b.tanggal) || a.kelas.localeCompare(b.kelas) || a.siswa.localeCompare(b.siswa));
+        rows.forEach(r=>{
+            const tr=document.createElement('tr');
+            tr.className='border-b border-white/10';
+            tr.innerHTML=`<td class="py-2 pr-2">${fmtDateID(r.tanggal)}</td> <td class="py-2 pr-2">${escapeHtml(r.kelas)}</td> <td class="py-2 pr-2">${escapeHtml(r.siswa)}</td> <td class="py-2 pr-2">${r.bangun}</td> <td class="py-2 pr-2 text-center">${r.ib}</td> <td class="py-2 pr-2 text-center">${r.olahraga}</td> <td class="py-2 pr-2">${r.makan}</td> <td class="py-2 pr-2 text-center">${r.belajar}</td> <td class="py-2 pr-2 text-center">${r.sos}</td> <td class="py-2 pr-2">${r.tidur}</td> <td class="py-2 pr-2 text-center">${r.komentar}</td> <td class="py-2 pr-2">${r.status}</td>`;
+            tbody.appendChild(tr);
+        });
+    }
+    
+    function renderAdminPredicateRecap(journals) {
+        const tbody = $('#adminPredicateRecapTableBody');
+        tbody.innerHTML = '';
+        const submittedJournals = journals.filter(j => j.submitted === true || j.submitted === 'TRUE' || j.submitted === 1);
+
+        if (submittedJournals.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="7" class="text-center py-4 text-violet-300">Tidak ada jurnal terkirim pada rentang ini.</td></tr>`;
+            return;
         }
 
-        async function onAddSiswa(e) {
-            e.preventDefault();
-            const name=$('#siswaNama').value.trim(); const kelas=$('#siswaKelas').value.trim(); const password = $('#siswaPassword').value.trim();
-            if(!name||!kelas||!password) { return alert('Nama, kelas, dan kata sandi harus diisi.'); }
-            const result = await postToServer('addSiswa', { siswa: { name, kelas, password } });
-            if(result){
-                state.students.push(result);
-                renderLists();
-                flash('Siswa ditambahkan');
-                $('#formAddSiswa').reset();
+        const rekapPerKelas = {};
+        submittedJournals.forEach(j => {
+            const siswa = state.students.find(s => String(s.id) === String(j.studentId));
+            if (!siswa) return;
+            const kelas = siswa.kelas;
+            if (!rekapPerKelas[kelas]) {
+                rekapPerKelas[kelas] = [];
             }
-        }
+            rekapPerKelas[kelas].push(j);
+        });
 
-        async function onDeleteSiswa(id) {
-            if (!confirm('Yakin ingin menghapus siswa ini? Ini akan menghapus semua jurnalnya.')) return;
-            const result = await postToServer('deleteSiswa', { id });
-            if(result){
-                state.students = state.students.filter(s => String(s.id) !== String(id));
-                renderLists();
-                flash('Siswa dihapus');
-            }
-        }
+        const sortedClasses = Object.keys(rekapPerKelas).sort();
 
-        function renderLists(){
-            const gt=$('#guruTable'); gt.innerHTML='';
-            state.teachers.forEach(t=>{
-                const tr=document.createElement('tr'); tr.className='border-b border-white/10';
-                tr.innerHTML=`<td class="py-2 pr-2">${escapeHtml(t.name)}</td> <td class="py-2 pr-2">${escapeHtml(t.kelas)}</td> <td class="py-2 pr-2"><button data-id="${t.id}" class="btnDelGuru px-2 py-1 rounded bg-white/10 hover:bg-white/15 border border-white/15 text-xs">Hapus</button></td>`;
-                gt.appendChild(tr);
+        sortedClasses.forEach(kelas => {
+            const jurnalKelas = rekapPerKelas[kelas];
+            const siswaDiKelas = [...new Set(jurnalKelas.map(j => j.studentId))];
+            let totalPredikatBiasa = { bangun: 0, tidur: 0, ibadah: 0, olahraga: 0, belajar: 0, makan: 0 };
+            
+            siswaDiKelas.forEach(studentId => {
+                const jurnalSiswa = jurnalKelas.filter(j => j.studentId === studentId);
+                const totalHari = jurnalSiswa.length;
+                if (totalHari === 0) return;
+
+                let bangunTerlambat = 0, tidurLarut = 0, ibadahKurang = 0, jarangOlahraga = 0, jarangBelajar = 0, makanTidakSehat = 0;
+                jurnalSiswa.forEach(j => {
+                    if (j.bangun && j.bangun > BATAS_BANGUN_PAGI) bangunTerlambat++;
+                    if (j.tidurLarut) tidurLarut++;
+                    const ibadahCount = (j.ibadahSubuh?1:0)+(j.ibadahDzuhur?1:0)+(j.ibadahAshar?1:0)+(j.ibadahMaghrib?1:0)+(j.ibadahIsya?1:0);
+                    if(ibadahCount < 4) ibadahKurang++;
+                    if(!j.olahragaMenit || j.olahragaMenit < 15) jarangOlahraga++;
+                    if(!j.belajarMenit || j.belajarMenit < 30) jarangBelajar++;
+                    if(!j.makanYa) makanTidakSehat++;
+                });
+
+                if ((bangunTerlambat / totalHari) < 0.5) totalPredikatBiasa.bangun++;
+                if ((tidurLarut / totalHari) < 0.5) totalPredikatBiasa.tidur++;
+                if ((ibadahKurang / totalHari) < 0.5) totalPredikatBiasa.ibadah++;
+                if ((jarangOlahraga / totalHari) < 0.5) totalPredikatBiasa.olahraga++;
+                if ((jarangBelajar / totalHari) < 0.5) totalPredikatBiasa.belajar++;
+                if ((makanTidakSehat / totalHari) < 0.5) totalPredikatBiasa.makan++;
             });
-            gt.querySelectorAll('.btnDelGuru').forEach(b=>b.addEventListener('click',()=> onDeleteGuru(b.getAttribute('data-id'))));
+
+            const totalSiswa = siswaDiKelas.length;
+            if (totalSiswa === 0) return;
             
-            const st=$('#siswaTable'); st.innerHTML='';
-            state.students.forEach(s=>{
-                const tr=document.createElement('tr'); tr.className='border-b border-white/10';
-                tr.innerHTML=`<td class="py-2 pr-2">${escapeHtml(s.name)}</td> <td class="py-2 pr-2">${escapeHtml(s.kelas)}</td> <td class="py-2 pr-2"><button data-id="${s.id}" class="btnDelSiswa px-2 py-1 rounded bg-white/10 hover:bg-white/15 border border-white/15 text-xs">Hapus</button></td>`;
-                st.appendChild(tr);
+            const tr = document.createElement('tr');
+            tr.className = 'border-b border-white/10';
+            tr.innerHTML = `
+                <td class="py-2 pr-2 font-semibold">${kelas}</td>
+                <td class="py-2 pr-2">${((totalPredikatBiasa.bangun / totalSiswa) * 100).toFixed(1)}%</td>
+                <td class="py-2 pr-2">${((totalPredikatBiasa.tidur / totalSiswa) * 100).toFixed(1)}%</td>
+                <td class="py-2 pr-2">${((totalPredikatBiasa.ibadah / totalSiswa) * 100).toFixed(1)}%</td>
+                <td class="py-2 pr-2">${((totalPredikatBiasa.olahraga / totalSiswa) * 100).toFixed(1)}%</td>
+                <td class="py-2 pr-2">${((totalPredikatBiasa.belajar / totalSiswa) * 100).toFixed(1)}%</td>
+                <td class="py-2 pr-2">${((totalPredikatBiasa.makan / totalSiswa) * 100).toFixed(1)}%</td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
+
+    function downloadAdminPredicatePDF() {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF({ orientation: 'landscape' });
+        const dari = $('#rekapDari').value || todayStr();
+        const sampai = $('#rekapSampai').value || todayStr();
+        const kelas = $('#rekapKelas').value;
+
+        doc.setFontSize(16); doc.text(state.school.name || 'Nama Sekolah', doc.internal.pageSize.getWidth()/2, 15, { align: 'center' });
+        doc.setFontSize(12); doc.text('Laporan Rekapitulasi Predikat Sekolah', doc.internal.pageSize.getWidth()/2, 22, { align: 'center' });
+        doc.setFontSize(10); doc.text(`Kelas: ${kelas === 'ALL' ? 'Semua Kelas' : kelas} • Periode: ${fmtDateID(dari)} - ${fmtDateID(sampai)}`, doc.internal.pageSize.getWidth()/2, 28, { align: 'center' });
+
+        doc.autoTable({
+            html: '#adminPredicateRecapTable',
+            startY: 35,
+            theme: 'grid',
+            headStyles: { fillColor: [79, 70, 229] }
+        });
+        
+        doc.save(`Rekap_Predikat_Sekolah_${dari}_sd_${sampai}.pdf`);
+    }
+
+    // ============== Guru View ==============
+    function renderGuru(){
+        if (!state.user || state.user.role!=='guru') return;
+        $('#guruInfo').textContent = `Guru: ${state.user.name} • Kelas: ${state.user.kelas}`;
+        $('#filterTanggalGuru').value = todayStr();
+        $('#guruMode').value = 'harian';
+        $('#guruDari').value = todayStr();
+        $('#guruSampai').value = todayStr();
+        updateGuruStats();
+        updateGuruTable();
+    }
+    
+    function getStudentsInClass(){ return state.students.filter(s=>s.kelas===state.user.kelas); }
+    
+    function updateGuruStats(){
+        const kelas = state.user.kelas;
+        const mode = $('#guruMode').value;
+        const students = getStudentsInClass();
+        
+        let dateFilterJournals = [];
+        if (mode==='harian'){
+            const tgl = $('#filterTanggalGuru').value || todayStr();
+            dateFilterJournals = state.journals.filter(j => j.date === tgl);
+        } else { // rentang atau predikat
+            const dari = $('#guruDari').value || todayStr();
+            const sampai = $('#guruSampai').value || todayStr();
+            const start=new Date(dari); start.setHours(0,0,0,0);
+            const end=new Date(sampai); end.setHours(0,0,0,0);
+            dateFilterJournals = state.journals.filter(j=>{
+                if (!j.date) return false;
+                const d=new Date(j.date); d.setHours(0,0,0,0);
+                return d>=start && d<=end;
             });
-            st.querySelectorAll('.btnDelSiswa').forEach(b=>b.addEventListener('click',()=> onDeleteSiswa(b.getAttribute('data-id'))));
-            
-            $('#guruCount').textContent = String(state.teachers.length);
-            $('#siswaCount').textContent = String(state.students.length);
         }
 
-        async function updateAdminRekap(){
-            const kelas = $('#rekapKelas').value;
-            const dari = $('#rekapDari').value || todayStr();
-            const sampai = $('#rekapSampai').value || todayStr();
-            
-            flash('Mengambil data rekap dari server...');
-            const journals = await fetchFromServer('getAdminRekap', { kelas, dari, sampai });
-            
-            const tbody = $('#rekapTable'); 
-            tbody.innerHTML='';
-            
-            if (!journals) return flash('Gagal mengambil data rekap.');
-            
-            // FILTRASI UTAMA: Hanya tampilkan jurnal yang sudah Terkirim (submitted: true/1/"TRUE")
-			const submittedJournals = journals.filter(j => j.submitted === true || j.submitted === 'TRUE' || j.submitted === 1);
+        const submittedJournals = dateFilterJournals.filter(j => j.submitted);
+        const totalSiswa = students.length;
+        const terkirimCount = new Set(submittedJournals.map(j=>j.studentId)).size;
+        const denom = Math.max(1, submittedJournals.length);
+        
+        $('#guruStatSiswa').textContent = totalSiswa;
+        $('#guruStatKelas').textContent = kelas;
+        $('#guruStatTerkirim').textContent = terkirimCount;
+        $('#guruStatBelum').textContent = totalSiswa - terkirimCount;
 
-            if (submittedJournals.length === 0) return tbody.innerHTML = `<tr><td colspan="11" class="text-center py-4 text-violet-300">Tidak ada jurnal terkirim pada rentang ini.</td></tr>`;
+        const totalIbadah = submittedJournals.reduce((a,j) => a + (j.ibadahSubuh?1:0)+(j.ibadahDzuhur?1:0)+(j.ibadahAshar?1:0)+(j.ibadahMaghrib?1:0)+(j.ibadahIsya?1:0), 0);
+        $('#guruAvgIbadah').textContent = (totalIbadah / denom).toFixed(1);
 
-            const rows = submittedJournals.map(j => {
-                const s = state.students.find(s => String(s.id) === String(j.studentId)) || {name: 'Siswa Dihapus', kelas: '-'};
-                // Menggunakan properti datar (flat) yang sudah Anda siapkan
+        $('#guruAvgOlahraga').textContent = Math.round(submittedJournals.reduce((a,j)=>a+(j.olahragaMenit||0),0)/denom);
+        $('#guruAvgBelajar').textContent = Math.round(submittedJournals.reduce((a,j)=>a+(j.belajarMenit||0),0)/denom);
+        $('#guruRateMakan').textContent = `${submittedJournals.length? Math.round(100* submittedJournals.filter(j=>j.makanYa).length / submittedJournals.length):0}%`;
+        $('#guruRateLarut').textContent = `${submittedJournals.length? Math.round(100* submittedJournals.filter(j=>j.tidurLarut).length / submittedJournals.length):0}%`;
+    }
+
+    function updateGuruTable(){
+        if (!state.user || !Array.isArray(state.journals)) return;
+
+        const mode=$('#guruMode').value;
+        const journalView = $('#guruJournalView');
+        const predicateView = $('#guruPredicateView');
+        
+        if(mode === 'predikat') {
+            journalView.classList.add('hidden');
+            predicateView.classList.remove('hidden');
+            renderPredicateRecap();
+        } else {
+            journalView.classList.remove('hidden');
+            predicateView.classList.add('hidden');
+            renderJournalTable();
+        }
+    }
+    
+    function renderJournalTable() {
+        const tbody=$('#guruJournalTable'); 
+        tbody.innerHTML='';
+        const mode=$('#guruMode').value;
+        const status = $('#filterStatusGuru').value;
+        const q = ($('#filterNamaGuru').value||'').toLowerCase();
+        
+        const inRange = (ds) => {
+            if (!ds) return false;
+            if (mode==='harian'){ const t=$('#filterTanggalGuru').value||todayStr(); return ds===t; }
+            const start=new Date($('#guruDari').value||todayStr()); start.setHours(0,0,0,0);
+            const end=new Date($('#guruSampai').value||todayStr()); end.setHours(0,0,0,0);
+            const d=new Date(ds); d.setHours(0,0,0,0); return d>=start && d<=end;
+        };
+        
+        const students = getStudentsInClass().filter(s=>s && s.name && s.name.toLowerCase().includes(q));
+        if (students.length === 0) {
+            tbody.innerHTML = `<tr><td class="py-2 pr-2 text-center text-violet-300" colspan="11">Tidak ada siswa di kelas ini.</td></tr>`;
+            return;
+        }
+
+        students.forEach(s=>{
+            const allJournals = state.journals.filter(j=>j && String(j.studentId)===String(s.id) && inRange(j.date));
+            let list = allJournals.sort((a,b)=>b.date.localeCompare(a.date));
+
+            if (status === 'terkirim') list = list.filter(j => j.submitted);
+            else if (status === 'belum') list = list.filter(j => !j.submitted);
+            else if (status === 'larut') list = list.filter(j => j.submitted && j.tidurLarut);
+            else if (status === 'semua') list = list.filter(j => j.submitted);
+            
+            if (list.length===0 && status !== 'belum'){
+                const hasSubmitted = allJournals.some(j => j.submitted);
+                if (!hasSubmitted){
+                    const tr=document.createElement('tr'); tr.className='border-b border-white/10';
+                    const msg = mode === 'harian' ? "Belum mengisi jurnal pada tanggal ini" : "Tidak ada jurnal terkirim pada rentang ini";
+                    tr.innerHTML = `<td class="py-2 pr-2">${escapeHtml(s.name)}</td><td class="py-2 pr-2 text-violet-300" colspan="10">${msg}</td>`;
+                    tbody.appendChild(tr);
+                }
+                return;
+            }
+            
+            list.forEach(j=>{
+                if ((status === 'terkirim' || status === 'larut') && !j.submitted) return; 
                 const ibadahCount = (j.ibadahSubuh?1:0) + (j.ibadahDzuhur?1:0) + (j.ibadahAshar?1:0) + (j.ibadahMaghrib?1:0) + (j.ibadahIsya?1:0);
-                return {
-                    tanggal: j.date, kelas:s.kelas, siswa:s.name,
-                    bangun: j.bangun || '-', 
-                    ib: ibadahCount,
-                    olahraga: j.olahragaMenit || 0, 
-                    makan: j.makanYa ? 'Ya' : 'Tidak',
-                    belajar: j.belajarMenit || 0, 
-                    sos: j.sosMenit || 0, 
-                    tidur: j.tidurJam || '-',
-                    status: j.tidurLarut ? 'Tidur Larut' : (j.submitted ? 'Terkirim' : 'Draft'),
-                    komentar: (j.comments?.length||0)
-                };
-            });
-
-            rows.sort((a,b)=> a.tanggal.localeCompare(b.tanggal) || a.kelas.localeCompare(b.kelas) || a.siswa.localeCompare(b.siswa));
-            rows.forEach(r=>{
-                const tr=document.createElement('tr'); 
-                tr.className='border-b border-white/10';
-                tr.innerHTML=`<td class="py-2 pr-2">${fmtDateID(r.tanggal)}</td> <td class="py-2 pr-2">${escapeHtml(r.kelas)}</td> <td class="py-2 pr-2">${escapeHtml(r.siswa)}</td> <td class="py-2 pr-2">${r.bangun}</td> <td class="py-2 pr-2 text-center">${r.ib}</td> <td class="py-2 pr-2 text-center">${r.olahraga}</td> <td class="py-2 pr-2">${r.makan}</td> <td class="py-2 pr-2 text-center">${r.belajar}</td> <td class="py-2 pr-2 text-center">${r.sos}</td> <td class="py-2 pr-2">${r.tidur}</td> <td class="py-2 pr-2 text-center">${r.komentar}</td> <td class="py-2 pr-2">${r.status}</td>`;
+                const statusText = j.tidurLarut ? 'Tidur Larut' : (j.submitted ? 'Terkirim' : 'Draft');
+                const komentarCount = (j.comments?.length||0);
+                const tr=document.createElement('tr'); tr.className='border-b border-white/10';
+                tr.innerHTML=`<td class="py-2 pr-2">${escapeHtml(s.name)}</td> <td class="py-2 pr-2">${fmtDateID(j.date)}</td> <td class="py-2 pr-2">${j.bangun||'-'}</td> <td class="py-2 pr-2 text-center">${ibadahCount}</td> <td class="py-2 pr-2 text-center">${j.olahragaMenit??0}</td> <td class="py-2 pr-2">${j.makanYa?'Ya':'Tidak'}</td> <td class="py-2 pr-2 text-center">${j.belajarMenit??0}</td> <td class="py-2 pr-2 text-center">${j.sosMenit??0}</td> <td class="py-2 pr-2">${j.tidurJam||'-'}</td> <td class="py-2 pr-2"><button class="btnComment no-print px-2 py-1 rounded bg-white/10 hover:bg-white/15 border border-white/15 text-xs" data-sid="${s.id}" data-date="${j.date}">💬 ${komentarCount}</button></td> <td class="py-2 pr-2">${statusText}</td>`;
                 tbody.appendChild(tr);
             });
-            $('#printAdminMeta').textContent = `Sekolah: ${state.school.name} • Kelas: ${kelas==='ALL'?'Semua':kelas} • Periode: ${fmtDateID(dari)} — ${fmtDateID(sampai)}`;
-        }
+        });
+        $$('.btnComment').forEach(b=>{ b.addEventListener('click',()=>openCommentModal(b.getAttribute('data-sid'), b.getAttribute('data-date'))); });
+    }
 
-        // ============== Guru View ==============
-        function renderGuru(){
-             if (!state.user || state.user.role!=='guru') return;
-            $('#guruInfo').textContent = `Guru: ${state.user.name} • Kelas: ${state.user.kelas}`;
-            $('#filterTanggalGuru').value = todayStr();
-            $('#guruMode').value = 'harian';
-            $('#guruDari').value = todayStr();
-            $('#guruSampai').value = todayStr();
+    function renderPredicateRecap() {
+        const tbody = $('#guruPredicateTableBody');
+        tbody.innerHTML = '';
+        const dari = $('#guruDari').value || todayStr();
+        const sampai = $('#guruSampai').value || todayStr();
+        const start = new Date(dari); start.setHours(0,0,0,0);
+        const end = new Date(sampai); end.setHours(0,0,0,0);
+
+        const students = getStudentsInClass();
+        if (students.length === 0) {
+            tbody.innerHTML = `<tr><td class="py-4 text-center text-violet-300" colspan="8">Tidak ada siswa di kelas ini.</td></tr>`;
+            return;
+        }
+        
+        students.forEach(s => {
+            const journals = state.journals.filter(j => {
+                if (!j.date) return false;
+                const d = new Date(j.date); d.setHours(0,0,0,0);
+                return String(j.studentId) === String(s.id) && j.submitted && d >= start && d <= end;
+            });
+
+            if (journals.length === 0) return;
+
+            const totalHari = journals.length;
+            let bangunTerlambat = 0, tidurLarut = 0, ibadahKurang = 0, jarangOlahraga = 0, jarangBelajar = 0, makanTidakSehat = 0;
+
+            journals.forEach(j => {
+                if (j.bangun && j.bangun > BATAS_BANGUN_PAGI) bangunTerlambat++;
+                if (j.tidurLarut) tidurLarut++;
+                const ibadahCount = (j.ibadahSubuh?1:0)+(j.ibadahDzuhur?1:0)+(j.ibadahAshar?1:0)+(j.ibadahMaghrib?1:0)+(j.ibadahIsya?1:0);
+                if(ibadahCount < 4) ibadahKurang++;
+                if(!j.olahragaMenit || j.olahragaMenit < 15) jarangOlahraga++;
+                if(!j.belajarMenit || j.belajarMenit < 30) jarangBelajar++;
+                if(!j.makanYa) makanTidakSehat++;
+            });
+
+            const predikat = {
+                bangun: (bangunTerlambat / totalHari) < 0.5 ? 'Biasa' : 'Belum Terbiasa',
+                tidur: (tidurLarut / totalHari) < 0.5 ? 'Biasa' : 'Belum Terbiasa',
+                ibadah: (ibadahKurang / totalHari) < 0.5 ? 'Biasa' : 'Belum Terbiasa',
+                olahraga: (jarangOlahraga / totalHari) < 0.5 ? 'Biasa' : 'Belum Terbiasa',
+                belajar: (jarangBelajar / totalHari) < 0.5 ? 'Biasa' : 'Belum Terbiasa',
+                makan: (makanTidakSehat / totalHari) < 0.5 ? 'Biasa' : 'Belum Terbiasa',
+            };
+            
+            const predicateString = JSON.stringify(predikat).replace(/"/g, "'");
+
+            const tr = document.createElement('tr');
+            tr.className = 'border-b border-white/10';
+            tr.innerHTML = `
+                <td class="py-2 pr-2">${escapeHtml(s.name)}</td>
+                <td class="py-2 pr-2">${predikat.bangun}</td>
+                <td class="py-2 pr-2">${predikat.tidur}</td>
+                <td class="py-2 pr-2">${predikat.ibadah}</td>
+                <td class="py-2 pr-2">${predikat.olahraga}</td>
+                <td class="py-2 pr-2">${predikat.belajar}</td>
+                <td class="py-2 pr-2">${predikat.makan}</td>
+                <td class="py-2 pr-2">
+                    <button onclick="downloadIndividualPredicatePDF('${escapeHtml(s.name)}', ${predicateString})" class="px-2 py-1 rounded bg-white/10 hover:bg-white/15 border border-white/15 text-xs">
+                        Unduh
+                    </button>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+
+        if (tbody.innerHTML === '') {
+            tbody.innerHTML = `<tr><td class="py-4 text-center text-violet-300" colspan="8">Tidak ada jurnal terkirim pada rentang tanggal yang dipilih.</td></tr>`;
+        }
+    }
+    
+    function downloadPredicatePDF() {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF({ orientation: 'landscape' });
+        
+        const dari = $('#guruDari').value || todayStr();
+        const sampai = $('#guruSampai').value || todayStr();
+
+        doc.setFontSize(16); doc.text(state.school.name || 'Nama Sekolah', doc.internal.pageSize.getWidth()/2, 15, { align: 'center' });
+        doc.setFontSize(12); doc.text('Laporan Rekapitulasi Predikat Jurnal Siswa', doc.internal.pageSize.getWidth()/2, 22, { align: 'center' });
+        doc.setFontSize(10); doc.text(`Kelas: ${state.user.kelas} • Periode: ${fmtDateID(dari)} - ${fmtDateID(sampai)}`, doc.internal.pageSize.getWidth()/2, 28, { align: 'center' });
+
+        doc.autoTable({
+            html: '#guruPredicateTable',
+            startY: 35,
+            theme: 'grid',
+            headStyles: { fillColor: [79, 70, 229] },
+            columns: [0, 1, 2, 3, 4, 5, 6] // Menghilangkan kolom Aksi
+        });
+
+        const finalY = doc.lastAutoTable.finalY + 20;
+        const pageW = doc.internal.pageSize.getWidth();
+        doc.text(`Jakarta, ${new Date().toLocaleDateString('id-ID', {day:'2-digit',month:'long',year:'numeric'})}`, pageW - 20, finalY, { align: 'right' });
+        doc.text('Guru Kelas', pageW - 20, finalY + 7, { align: 'right' });
+        doc.text(state.user.name, pageW - 20, finalY + 28, { align: 'right' });
+        
+        doc.text('Mengetahui, Kepala Sekolah', 20, finalY + 7);
+        doc.text(state.school.kepsek || '(Nama Kepala Sekolah)', 20, finalY + 28);
+        
+        doc.save(`Rekap_Predikat_${state.user.kelas}_${dari}_sd_${sampai}.pdf`);
+    }
+
+    function downloadIndividualPredicatePDF(studentName, predicateData) {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
+
+        const namaSekolah = state.school.name || 'Nama Sekolah';
+        const kelas = state.user.kelas || '';
+        const tanggalCetak = new Date().toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' });
+        const namaGuru = state.user.name || 'Guru Kelas';
+
+        doc.setFontSize(16); doc.text(namaSekolah, doc.internal.pageSize.getWidth() / 2, 20, { align: 'center' });
+        doc.setFontSize(12); doc.text('Laporan Jurnal Perkembangan Karakter Siswa', doc.internal.pageSize.getWidth() / 2, 28, { align: 'center' });
+        doc.setLineWidth(0.5); doc.line(20, 32, 190, 32);
+
+        doc.setFontSize(11);
+        doc.text(`Nama Siswa\t: ${studentName}`, 20, 45);
+        doc.text(`Kelas\t\t: ${kelas}`, 20, 52);
+        doc.text(`Tanggal Cetak\t: ${tanggalCetak}`, 20, 59);
+
+        const tableData = [
+            ['Bangun Pagi', predicateData.bangun], ['Tidur Cepat', predicateData.tidur],
+            ['Beribadah', predicateData.ibadah], ['Berolahraga', predicateData.olahraga],
+            ['Gemar Belajar', predicateData.belajar], ['Makan Sehat & Bergizi', predicateData.makan]
+        ];
+        doc.autoTable({
+            startY: 70,
+            head: [['Dimensi Kebiasaan', 'Predikat']], body: tableData, theme: 'grid',
+            headStyles: { fillColor: [79, 70, 229] },
+            didDrawPage: function(data) {
+                const finalY = doc.internal.pageSize.getHeight() - 70;
+                doc.setFontSize(11);
+                doc.text('Orang Tua Siswa,', 30, finalY);
+                doc.text('Guru Kelas,', 140, finalY);
+                doc.text('(_________________)', 25, finalY + 25);
+                doc.text(`( ${namaGuru} )`, 135, finalY + 25);
+            }
+        });
+        
+        doc.save(`Laporan_${studentName.replace(/ /g, "_")}.pdf`);
+    }
+
+    // ============== Komentar ==============
+    let commentCtx = { sid:null, date:null };
+    function openCommentModal(studentId, date){ commentCtx = { sid:studentId, date }; const s = state.students.find(x=>String(x.id)===String(studentId)); $('#commentMeta').textContent = `${s?.name || ''} • ${fmtDateID(date)}`; renderCommentList(); $('#commentModal').classList.remove('hidden'); }
+    function closeCommentModal(){ $('#commentModal').classList.add('hidden'); commentCtx = { sid:null, date:null }; }
+    async function onKirimKomentar(e){ e.preventDefault(); const txt=$('#commentInput').value.trim(); if(!txt) return; const comment = { by: state.user?.name || 'Guru', text: txt, at: new Date().toISOString() }; const result = await postToServer('saveComment', { studentId: commentCtx.sid, date: commentCtx.date, comment }); if(result){ const j = state.journals.find(x=>String(x.studentId)===String(commentCtx.sid) && x.date===commentCtx.date); if (j) j.comments = result.comments; renderCommentList(); renderJournalTable(); flash('Komentar ditambahkan'); $('#commentInput').value=''; } }
+    function renderCommentList(){ const wrap=$('#commentList'); wrap.innerHTML=''; const j = state.journals.find(x=>String(x.studentId)===String(commentCtx.sid) && x.date===commentCtx.date); const list = j?.comments || []; if (list.length===0){ wrap.innerHTML = `<div class="text-sm text-violet-200/80">Belum ada komentar.</div>`; return; } list.slice().reverse().forEach(c=>{ const div=document.createElement('div'); const t=new Date(c.at); div.className='p-3 rounded-lg bg-white/5 border border-white/10'; div.innerHTML=`<div class="text-xs text-violet-200/80">${escapeHtml(c.by)} • ${t.toLocaleString('id-ID')}</div> <div class="text-sm">${escapeHtml(c.text)}</div>`; wrap.appendChild(div); }); }
+    
+    // ============== Siswa View ==============
+    function renderSiswa(){ if (!state.user || state.user.role!=='siswa') return; $('#siswaInfo').textContent = `Siswa: ${state.user.name} • Kelas: ${state.user.kelas}`; const tgl=todayStr(); $('#tanggalJurnalSiswa').value=tgl; const tabs=$$('.siswa-tab'); const setTab = (key) => { $('#tabHarian').classList.toggle('hidden', key!=='harian'); $('#tabHistori').classList.toggle('hidden', key!=='histori'); $('#tabRiwayat').classList.toggle('hidden', key!=='riwayat'); $('#tabKirim').classList.toggle('hidden', key!=='kirim'); tabs.forEach(t=>t.classList.remove('bg-white/10','border-white/10','border-b-0')); const btn=[...tabs].find(t=>t.getAttribute('data-siswatab')===key); btn?.classList.add('bg-white/10','border-white/10','border-b-0'); }; tabs.forEach(btn=>btn.addEventListener('click',()=>setTab(btn.getAttribute('data-siswatab')))); loadFormForDate(tgl); renderHistori(); renderRiwayatSaya(); updateRingkasan(); updateProgress(); setTab('harian'); }
+    function getJournal(studentId, date){ return state.journals.find(j=>String(j.studentId)===String(studentId) && j.date===date); }
+    function onTanggalChange(){ const d=$('#tanggalJurnalSiswa').value || todayStr(); loadFormForDate(d); updateRingkasan(); updateProgress(); }
+    function loadFormForDate(date){ const j=getJournal(state.user.id, date); $('#bangunPagi').value=j?.bangun||''; $('#ibadahSubuh').checked=!!j?.ibadahSubuh; $('#ibadahDzuhur').checked=!!j?.ibadahDzuhur; $('#ibadahAshar').checked=!!j?.ibadahAshar; $('#ibadahMaghrib').checked=!!j?.ibadahMaghrib; $('#ibadahIsya').checked=!!j?.ibadahIsya; $('#olahragaKegiatan').value=j?.olahragaKegiatan||''; $('#olahragaMenit').value=j?.olahragaMenit??''; $('#makanSehatYa').checked=!!j?.makanYa; $('#makanKarbo').checked=!!j?.makanKarbo; $('#makanSayurBuahSusu').checked=!!j?.makanSayurBuahSusu; $('#makanLauk').checked=!!j?.makanLauk; $('#makanAir').checked=!!j?.makanAir; $('#makanCatatan').value=j?.makanCatatan||''; $('#belajarMenit').value=j?.belajarMenit??''; $('#belajarMateri').value=j?.belajarMateri||''; $('#sosBermain').checked=!!j?.sosBermain; $('#sosBantuOrtu').checked=!!j?.sosBantuOrtu; $('#sosBelKelompok').checked=!!j?.sosBelKelompok; $('#sosMenolong').checked=!!j?.sosMenolong; $('#sosialisasiMenit').value=j?.sosMenit??''; $('#sosCatatan').value=j?.sosCatatan||''; $('#tidurJam').value=j?.tidurJam||''; $('#statusForm').textContent = j?.submitted?'Status: Terkirim':(j?'Status: Draft':'Status: Belum diisi'); toggleFormDisabled(!!j?.submitted); }
+    function toggleFormDisabled(dis){ $$('#formJurnal input, #formJurnal button').forEach(el=>{ el.disabled=dis; if(dis){el.classList.add('opacity-70','cursor-not-allowed');} else {el.classList.remove('opacity-70','cursor-not-allowed');} }); $('#btnSimpanDraft').disabled = dis; $('#btnKirimJurnal').disabled = dis; if(dis) { $('#btnSimpanDraft').classList.add('opacity-70', 'cursor-not-allowed'); $('#btnKirimJurnal').classList.add('opacity-70', 'cursor-not-allowed'); } else { $('#btnSimpanDraft').classList.remove('opacity-70', 'cursor-not-allowed'); $('#btnKirimJurnal').classList.remove('opacity-70', 'cursor-not-allowed'); } }
+    function readForm(){ return { bangun: $('#bangunPagi').value || '', ibadahSubuh: $('#ibadahSubuh').checked, ibadahDzuhur: $('#ibadahDzuhur').checked, ibadahAshar: $('#ibadahAshar').checked, ibadahMaghrib: $('#ibadahMaghrib').checked, ibadahIsya: $('#ibadahIsya').checked, olahragaKegiatan: $('#olahragaKegiatan').value || '', olahragaMenit: Number($('#olahragaMenit').value || 0), makanYa: $('#makanSehatYa').checked, makanKarbo: $('#makanKarbo').checked, makanSayurBuahSusu: $('#makanSayurBuahSusu').checked, makanLauk: $('#makanLauk').checked, makanAir: $('#makanAir').checked, makanCatatan: $('#makanCatatan').value || '', belajarMenit: Number($('#belajarMenit').value || 0), belajarMateri: $('#belajarMateri').value || '', sosMenit: Number($('#sosialisasiMenit').value || 0), sosBermain: $('#sosBermain').checked, sosBantuOrtu: $('#sosBantuOrtu').checked, sosBelKelompok: $('#sosBelKelompok').checked, sosMenolong: $('#sosMenolong').checked, sosCatatan: $('#sosCatatan').value || '', tidurJam: $('#tidurJam').value || '', tidurLarut: (timeToMin($('#tidurJam').value) ?? 0) > (22*60) || (timeToMin($('#tidurJam').value) ?? 9999) < (4*60) }; }
+    async function onSimpanKirimJurnal(isSubmit){ const date=$('#tanggalJurnalSiswa').value || todayStr(); const sId=state.user.id; let j=getJournal(sId,date); const form=readForm(); if (j && j.submitted) return flash('Jurnal sudah terkirim dan terkunci.'); if (isSubmit && (!form.bangun || !form.tidurJam)) return alert('Lengkapi jam bangun dan jam tidur sebelum mengirim.'); const newJournalData = { ...form, id: j?.id || uid(), studentId: sId, date, submitted: isSubmit, submittedAt: isSubmit ? new Date().toISOString() : null, comments: j?.comments || [] }; const result = await postToServer('saveJournal', { journal: newJournalData }); if(result){ const index = state.journals.findIndex(item => String(item.studentId) === String(result.studentId) && item.date === result.date); if (index > -1) { state.journals[index] = result; } else { state.journals.push(result); } loadFormForDate(date); renderHistori(); renderRiwayatSaya(); updateRingkasan(); updateProgress(); flash(isSubmit ? 'Jurnal terkirim!' : 'Draft disimpan.'); } }
+    function renderHistori(){ const tb=$('#historiTable'); tb.innerHTML=''; const sId=state.user.id; state.journals.filter(j=>String(j.studentId)===String(sId)).sort((a,b)=>b.date.localeCompare(a.date)) .forEach(j=>{ const tr=document.createElement('tr'); tr.className='border-b border-white/10'; const status=j.tidurLarut?'Tidur Larut':(j.submitted?'Terkirim':'Draft'); const ibadahCount = (j.ibadahSubuh?1:0) + (j.ibadahDzuhur?1:0) + (j.ibadahAshar?1:0) + (j.ibadahMaghrib?1:0) + (j.ibadahIsya?1:0); tr.innerHTML=`<td class="py-2 pr-2">${fmtDateID(j.date)}</td> <td class="py-2 pr-2">${j.bangun||'-'}</td> <td class="py-2 pr-2 text-center">${ibadahCount}</td> <td class="py-2 pr-2 text-center">${j.olahragaMenit??0}</td> <td class="py-2 pr-2">${j.makanYa?'Ya':'Tidak'}</td> <td class="py-2 pr-2 text-center">${j.belajarMenit??0}</td> <td class="py-2 pr-2 text-center">${j.sosMenit??0}</td> <td class="py-2 pr-2">${j.tidurJam||'-'}</td> <td class="py-2 pr-2">${status}</td>`; tb.appendChild(tr); }); }
+    function renderRiwayatSaya(){ const sId=state.user.id; const terkirim=state.journals.filter(j=>String(j.studentId)===String(sId) && j.submitted); const drafts=state.journals.filter(j=>String(j.studentId)===String(sId) && !j.submitted).length; const denom = Math.max(1, terkirim.length); $('#rwyHariTerkirim').textContent=terkirim.length; $('#rwyDraft').textContent=drafts; const totalIbadah = terkirim.reduce((a,j) => a + (j.ibadahSubuh?1:0) + (j.ibadahDzuhur?1:0) + (j.ibadahAshar?1:0) + (j.ibadahMaghrib?1:0) + (j.ibadahIsya?1:0), 0); $('#rwyAvgIbadah').textContent = (totalIbadah / denom).toFixed(1); $('#rwyAvgBelajar').textContent=Math.round(terkirim.reduce((a,j)=>a+(j.belajarMenit||0),0)/denom); $('#rwyAvgOlahraga').textContent=Math.round(terkirim.reduce((a,j)=>a+(j.olahragaMenit||0),0)/denom); $('#rwyRateMakan').textContent=`${terkirim.length?Math.round(100*terkirim.filter(j=>j.makanYa).length/terkirim.length):0}%`; $('#rwyLarutCount').textContent=terkirim.filter(j=>j.tidurLarut).length; }
+    function updateRingkasan(){ const d=$('#tanggalJurnalSiswa').value || todayStr(); const j=getJournal(state.user.id,d); const wrap=$('#ringkasanHariIni'); if(!j){ wrap.innerHTML='<div class="text-violet-200/80">Belum ada isian untuk tanggal ini.</div>'; return; } const ibadahCount = (j.ibadahSubuh?1:0) + (j.ibadahDzuhur?1:0) + (j.ibadahAshar?1:0) + (j.ibadahMaghrib?1:0) + (j.ibadahIsya?1:0); wrap.innerHTML=`<div><strong>Tanggal:</strong> ${fmtDateID(d)}</div> <div><strong>Bangun:</strong> ${j.bangun||'-'}</div> <div><strong>Ibadah:</strong> ${ibadahCount} kali</div> <div><strong>Olahraga:</strong> ${j.olahragaMenit??0} menit</div> <div><strong>Makan sehat:</strong> ${j.makanYa?'Ya':'Tidak'}</div> <div><strong>Belajar:</strong> ${j.belajarMenit??0} menit</div> <div><strong>Bermasyarakat:</strong> ${j.sosMenit??0} menit</div> <div><strong>Tidur:</strong> ${j.tidurJam||'-'} ${j.tidurLarut?'(larut malam)':''}</div> <div><strong>Status:</strong> ${j.submitted?'Terkirim':'Draft'}</div>`; }
+    function updateProgress(){ const j=readForm(); let count=0; if(j.bangun) count++; if(j.ibadahSubuh || j.ibadahDzuhur || j.ibadahAshar || j.ibadahMaghrib || j.ibadahIsya) count++; if(j.olahragaMenit > 0) count++; if(j.makanYa) count++; if(j.belajarMenit > 0) count++; if(j.sosMenit > 0) count++; if(j.tidurJam) count++; const pct=Math.round((count/7)*100); $('#progressBar').style.width=pct+'%'; $('#progressLabel').textContent=pct+'%'; $('#progressTips').textContent = pct===100 ? 'Luar biasa! Semua kebiasaan terisi.' : 'Lengkapi 7 kebiasaan untuk 100%.'; }
+    function downloadURL(url, filename){ const a=document.createElement('a'); a.href=url; a.download=filename; document.body.appendChild(a); a.click(); a.remove(); }
+    
+    function attachGlobalListeners() {
+        // Admin listeners
+        $('#btnSimpanBiodata').addEventListener('click', onSimpanBiodata);
+        $('#formAddGuru').addEventListener('submit', onAddGuru);
+        $('#formAddSiswa').addEventListener('submit', onAddSiswa);
+        $('#btnRekapTerapkan').addEventListener('click', updateAdminRekap);
+        $('#btnRekapCetak').addEventListener('click', () => {
+            if (adminRekapViewMode === 'predicate') {
+                downloadAdminPredicatePDF();
+            } else {
+                window.print();
+            }
+        });
+
+        // Guru listeners
+        const guruModeSelect = $('#guruMode');
+        const guruFilterHarian = $('#guruFilterHarian');
+        const guruFilterRentang = $('#guruFilterRentang');
+
+        guruModeSelect.addEventListener('change', () => {
+            const mode = guruModeSelect.value;
+            if (mode === 'harian') {
+                guruFilterHarian.style.display = 'flex';
+                guruFilterRentang.style.display = 'none';
+            } else {
+                guruFilterHarian.style.display = 'none';
+                guruFilterRentang.style.display = 'flex';
+            }
             updateGuruStats();
             updateGuruTable();
-        }
-        function getStudentsInClass(){ return state.students.filter(s=>s.kelas===state.user.kelas); }
-        function updateGuruStats(){
-            const kelas = state.user.kelas;
-            const mode = $('#guruMode').value;
-            const students = getStudentsInClass();
-            let journals = state.journals;
-             if (mode==='rentang'){
-                const dari = $('#guruDari').value || todayStr();
-                const sampai = $('#guruSampai').value || todayStr();
-                const start=new Date(dari), end=new Date(sampai);
-                journals = state.journals.filter(j=>{
-                    const d=new Date(j.date); d.setHours(0,0,0,0);
-                    return d>=start && d<=end;
-                });
-            }
-            const totalSiswa = students.length;
-            const terkirim = new Set(journals.filter(j=>j.submitted).map(j=>j.studentId)).size;
-            const denom = Math.max(1, journals.length);
-            $('#guruStatSiswa').textContent = totalSiswa;
-            $('#guruStatKelas').textContent = kelas;
-            $('#guruStatTerkirim').textContent = terkirim;
-            $('#guruStatBelum').textContent = totalSiswa - terkirim;
-            $('#guruAvgIbadah').textContent = (journals.reduce((a,j)=>a+Object.values(j.ibadah||{}).filter(Boolean).length,0)/denom).toFixed(1);
-            $('#guruAvgOlahraga').textContent = Math.round(journals.reduce((a,j)=>a+(j.olahraga?.menit||0),0)/denom);
-            $('#guruAvgBelajar').textContent = Math.round(journals.reduce((a,j)=>a+(j.belajar?.menit||0),0)/denom);
-            $('#guruRateMakan').textContent = `${journals.length? Math.round(100* journals.filter(j=>j.makan?.ya).length / journals.length):0}%`;
-            $('#guruRateLarut').textContent = `${journals.length? Math.round(100* journals.filter(j=>j.tidur?.larut).length / journals.length):0}%`;
-        }
-        async function updateAdminRekap(){
-            const kelas = $('#rekapKelas').value;
-            const dari = $('#rekapDari').value || todayStr();
-            const sampai = $('#rekapSampai').value || todayStr();
-            
-            flash('Mengambil data rekap dari server...');
-            // Apps Script sekarang sudah memfilter yang submitted: true
-            const journals = await fetchFromServer('getAdminRekap', { kelas, dari, sampai });
-            
-            const tbody = $('#rekapTable'); 
-            tbody.innerHTML='';
-            
-            if (!journals) return flash('Gagal mengambil data rekap.');
-            
-            // JIKA Apps Script sudah memfilter, journals adalah data submitted.
-            // Jika ada keraguan, gunakan pemfilteran toleran di frontend:
-            const submittedJournals = journals.filter(j => j.submitted === true || j.submitted === 'TRUE' || j.submitted === 1);
+        });
 
-            if (submittedJournals.length === 0) return tbody.innerHTML = `<tr><td colspan="11" class="text-center py-4 text-violet-300">Tidak ada jurnal terkirim pada rentang ini.</td></tr>`;
-
-            const rows = submittedJournals.map(j => {
-                const s = state.students.find(s => String(s.id) === String(j.studentId)) || {name: 'Siswa Dihapus', kelas: '-'};
-                
-                const ibadahCount = (j.ibadahSubuh?1:0) + (j.ibadahDzuhur?1:0) + (j.ibadahAshar?1:0) + (j.ibadahMaghrib?1:0) + (j.ibadahIsya?1:0);
-                return {
-                    tanggal: j.date, kelas:s.kelas, siswa:s.name,
-                    bangun: j.bangun || '-', 
-                    ib: ibadahCount,
-                    olahraga: j.olahragaMenit || 0, 
-                    makan: j.makanYa ? 'Ya' : 'Tidak',
-                    belajar: j.belajarMenit || 0, 
-                    sos: j.sosMenit || 0, 
-                    tidur: j.tidurJam || '-',
-                    status: j.tidurLarut ? 'Tidur Larut' : (j.submitted ? 'Terkirim' : 'Draft'),
-                    komentar: (j.comments?.length||0)
-                };
-            });
-
-            rows.sort((a,b)=> a.tanggal.localeCompare(b.tanggal) || a.kelas.localeCompare(b.kelas) || a.siswa.localeCompare(b.siswa));
-            rows.forEach(r=>{
-                const tr=document.createElement('tr'); 
-                tr.className='border-b border-white/10';
-                tbody.appendChild(tr);
-                tr.innerHTML=`<td class="py-2 pr-2">${fmtDateID(r.tanggal)}</td> <td class="py-2 pr-2">${escapeHtml(r.kelas)}</td> <td class="py-2 pr-2">${escapeHtml(r.siswa)}</td> <td class="py-2 pr-2">${r.bangun}</td> <td class="py-2 pr-2 text-center">${r.ib}</td> <td class="py-2 pr-2 text-center">${r.olahraga}</td> <td class="py-2 pr-2">${r.makan}</td> <td class="py-2 pr-2 text-center">${r.belajar}</td> <td class="py-2 pr-2 text-center">${r.sos}</td> <td class="py-2 pr-2">${r.tidur}</td> <td class="py-2 pr-2 text-center">${r.komentar}</td> <td class="py-2 pr-2">${r.status}</td>`;
-            });
-            $('#printAdminMeta').textContent = `Sekolah: ${state.school.name} • Kelas: ${kelas==='ALL'?'Semua':kelas} • Periode: ${fmtDateID(dari)} — ${fmtDateID(sampai)}`;
-        }
-
-        function updateGuruTable(){
-            if (!state.user || !Array.isArray(state.journals)) return;
-            const tbody=$('#guruJournalTable'); 
-            tbody.innerHTML='';
-            const mode=$('#guruMode').value;
-            const status = $('#filterStatusGuru').value; // 'semua', 'terkirim', 'belum', 'larut'
-            const q = ($('#filterNamaGuru').value||'').toLowerCase();
-            const inRange = (ds) => {
-                if (!ds) return false;
-                if (mode==='harian'){ const t=$('#filterTanggalGuru').value||todayStr(); return ds===t; }
-                const start=new Date($('#guruDari').value||todayStr()); const end=new Date($('#guruSampai').value||todayStr());
-                const d=new Date(ds); d.setHours(0,0,0,0); return d>=start && d<=end;
-            };
-            const students = getStudentsInClass().filter(s=>s && s.name && s.name.toLowerCase().includes(q));
-            
-            if (students.length === 0) {
-                tbody.innerHTML = `<tr><td class="py-2 pr-2 text-center text-violet-300" colspan="11">Tidak ada siswa di kelas ini.</td></tr>`;
-                return;
-            }
-
-            students.forEach(s=>{
-                // Ambil semua jurnal untuk siswa dan rentang saat ini
-                const allJournals = state.journals.filter(j=>j && String(j.studentId)===String(s.id) && inRange(j.date));
-                let list = allJournals.sort((a,b)=>b.date.localeCompare(a.date));
-
-                // LOGIKA FILTER STATUS UNTUK GURU
-                if (status === 'terkirim') {
-                    list = list.filter(j => j.submitted);
-                } else if (status === 'belum') {
-                    // Cek jika ada isian (Draft) yang belum dikirim
-                    list = list.filter(j => !j.submitted);
-                } else if (status === 'larut') {
-                    list = list.filter(j => j.submitted && j.tidurLarut);
-                } else if (status === 'semua') {
-                    // Secara default, mode "Semua" di guru seharusnya hanya menampilkan yang submitted agar tidak penuh
-                    list = list.filter(j => j.submitted);
-                }
-                
-                // Jika setelah filter 'terkirim', 'larut', atau 'semua', hasilnya kosong:
-                if (list.length===0 && status !== 'belum'){
-                    const hasSubmitted = allJournals.some(j => j.submitted);
-                    // Tampilkan "Belum mengisi jurnal" jika memang belum ada jurnal terkirim di rentang ini
-                    if (!hasSubmitted){
-                        const tr=document.createElement('tr'); tr.className='border-b border-white/10';
-                        const msg = mode === 'harian' ? "Belum mengisi jurnal pada tanggal ini" : "Tidak ada jurnal terkirim pada rentang ini";
-                        tr.innerHTML = `<td class="py-2 pr-2">${escapeHtml(s.name)}</td><td class="py-2 pr-2 text-violet-300" colspan="10">${msg}</td>`;
-                        tbody.appendChild(tr);
-                    }
-                    return;
-                }
-                
-                // Menampilkan hasil filter
-                list.forEach(j=>{
-                    // Untuk filter "Belum Kirim", kita mungkin masih menampilkan Draft
-                    if ((status === 'terkirim' || status === 'larut') && !j.submitted) return; 
-                    
-                    const ibadahCount = (j.ibadahSubuh?1:0) + (j.ibadahDzuhur?1:0) + (j.ibadahAshar?1:0) + (j.ibadahMaghrib?1:0) + (j.ibadahIsya?1:0);
-                    
-                    const statusText = j.tidurLarut ? 'Tidur Larut' : (j.submitted ? 'Terkirim' : 'Draft');
-                    const komentarCount = (j.comments?.length||0);
-                    const tr=document.createElement('tr'); tr.className='border-b border-white/10';
-
-                    // PENTING: Memastikan properti datar diakses dan adanya fallback '-'
-                    tr.innerHTML=`<td class="py-2 pr-2">${escapeHtml(s.name)}</td> <td class="py-2 pr-2">${fmtDateID(j.date)}</td> <td class="py-2 pr-2">${j.bangun||'-'}</td> <td class="py-2 pr-2 text-center">${ibadahCount}</td> <td class="py-2 pr-2 text-center">${j.olahragaMenit??0}</td> <td class="py-2 pr-2">${j.makanYa?'Ya':'Tidak'}</td> <td class="py-2 pr-2 text-center">${j.belajarMenit??0}</td> <td class="py-2 pr-2 text-center">${j.sosMenit??0}</td> <td class="py-2 pr-2">${j.tidurJam||'-'}</td> <td class="py-2 pr-2"><button class="btnComment no-print px-2 py-1 rounded bg-white/10 hover:bg-white/15 border border-white/15 text-xs" data-sid="${s.id}" data-date="${j.date}">💬 ${komentarCount}</button></td> <td class="py-2 pr-2">${statusText}</td>`;
-                    tbody.appendChild(tr);
-                });
-            });
-            $$('.btnComment').forEach(b=>{ b.addEventListener('click',()=>openCommentModal(b.getAttribute('data-sid'), b.getAttribute('data-date'))); });
-            
-            if(mode === 'harian') {
-                $('#printGuruMeta').textContent = `Kelas: ${state.user.kelas} • Tanggal: ${fmtDateID($('#filterTanggalGuru').value)}`;
+        $('#filterTanggalGuru').addEventListener('change', () => { updateGuruStats(); updateGuruTable(); });
+        $('#filterStatusGuru').addEventListener('change', updateGuruTable);
+        $('#filterNamaGuru').addEventListener('input', updateGuruTable);
+        $('#guruTerapkanRange').addEventListener('click', (event) => { event.preventDefault(); updateGuruStats(); updateGuruTable(); });
+        
+        $('#btnCetakGuru').addEventListener('click', () => {
+            if ($('#guruMode').value === 'predikat') {
+                downloadPredicatePDF();
             } else {
-                $('#printGuruMeta').textContent = `Kelas: ${state.user.kelas} • Periode: ${fmtDateID($('#guruDari').value)} — ${fmtDateID($('#guruSampai').value)}`;
+                window.print();
             }
-        }
+        });
 
-        // ============== Komentar ==============
-        let commentCtx = { sid:null, date:null };
-        function openCommentModal(studentId, date){
-            commentCtx = { sid:studentId, date };
-            const s = state.students.find(x=>String(x.id)===String(studentId));
-            $('#commentMeta').textContent = `${s?.name || ''} • ${fmtDateID(date)}`;
-            renderCommentList();
-            $('#commentModal').classList.remove('hidden');
-        }
-        function closeCommentModal(){ $('#commentModal').classList.add('hidden'); commentCtx = { sid:null, date:null }; }
-        async function onKirimKomentar(e){
-            e.preventDefault();
-            const txt=$('#commentInput').value.trim(); if(!txt) return;
-            const comment = { by: state.user?.name || 'Guru', text: txt, at: new Date().toISOString() };
-            const result = await postToServer('saveComment', { studentId: commentCtx.sid, date: commentCtx.date, comment });
-            if(result){
-                const j = state.journals.find(x=>String(x.studentId)===String(commentCtx.sid) && x.date===commentCtx.date);
-                if (j) j.comments = result.comments;
-                renderCommentList();
-                updateGuruTable();
-                flash('Komentar ditambahkan');
-                $('#commentInput').value='';
-            }
-        }
-        function renderCommentList(){
-            const wrap=$('#commentList'); wrap.innerHTML='';
-            const j = state.journals.find(x=>String(x.studentId)===String(commentCtx.sid) && x.date===commentCtx.date);
-            const list = j?.comments || [];
-            if (list.length===0){ wrap.innerHTML = `<div class="text-sm text-violet-200/80">Belum ada komentar.</div>`; return; }
-            list.slice().reverse().forEach(c=>{
-                const div=document.createElement('div');
-                const t=new Date(c.at);
-                div.className='p-3 rounded-lg bg-white/5 border border-white/10';
-                div.innerHTML=`<div class="text-xs text-violet-200/80">${escapeHtml(c.by)} • ${t.toLocaleString('id-ID')}</div> <div class="text-sm">${escapeHtml(c.text)}</div>`;
-                wrap.appendChild(div);
-            });
+        // Komentar listeners
+        $('#closeComment').addEventListener('click', closeCommentModal);
+        $('#commentForm').addEventListener('submit', onKirimKomentar);
+
+        // Siswa listeners
+        $('#formJurnal').addEventListener('submit', (e) => e.preventDefault());
+        $('#btnSimpanDraft').addEventListener('click', (event) => { event.preventDefault(); onSimpanKirimJurnal(false); });
+        $('#btnKirimJurnal').addEventListener('click', (event) => { event.preventDefault(); onSimpanKirimJurnal(true); });
+        $('#btnKirimFinal').addEventListener('click', (event) => { event.preventDefault(); onSimpanKirimJurnal(true); });
+        $('#tanggalJurnalSiswa').addEventListener('change', onTanggalChange);
+        $('#btnEditKembali').addEventListener('click',()=>$$('.siswa-tab')[0].click());
+        $$('#formJurnal input, #formJurnal select, #formJurnal textarea').forEach(el => el.addEventListener('input', updateProgress));
+    }
+
+    async function initApp() {
+        loadStateFromStorage();
+        flash('Memuat data awal...');
+        const initialData = await fetchFromServer('getInitialData');
+        
+        if (initialData) {
+            state = { ...state, ...initialData };
+            flash('Data siap!');
+        } else {
+            flash('Gagal memuat data awal. Coba refresh halaman.');
+            return;
         }
         
-        // ============== Siswa View ==============
-        function renderSiswa(){
-            if (!state.user || state.user.role!=='siswa') return;
-            $('#siswaInfo').textContent = `Siswa: ${state.user.name} • Kelas: ${state.user.kelas}`;
-            const tgl=todayStr(); $('#tanggalJurnalSiswa').value=tgl;
-            const tabs=$$('.siswa-tab');
-            const setTab = (key) => {
-                $('#tabHarian').classList.toggle('hidden', key!=='harian');
-                $('#tabHistori').classList.toggle('hidden', key!=='histori');
-                $('#tabRiwayat').classList.toggle('hidden', key!=='riwayat');
-                $('#tabKirim').classList.toggle('hidden', key!=='kirim');
-                tabs.forEach(t=>t.classList.remove('bg-white/10','border-white/10','border-b-0'));
-                const btn=[...tabs].find(t=>t.getAttribute('data-siswatab')===key); btn?.classList.add('bg-white/10','border-white/10','border-b-0');
+        updateSchoolUI();
+        attachRoleGate();
+        attachGlobalListeners();
+        setRoleBadge();
+
+        if (state.user) {
+            if (state.user.role === 'guru') {
+                const journals = await fetchFromServer('getGuruData', { kelas: state.user.kelas });
+                if(journals) state.journals = journals;
+                showSection('guruView');
+                renderGuru();
+            } else if (state.user.role === 'siswa') {
+                const journals = await fetchFromServer('getSiswaData', { studentId: state.user.id });
+                if(journals) state.journals = journals;
+                showSection('siswaView');
+                renderSiswa();
+            } else if (state.user.role === 'admin') {
+                showSection('adminView');
+                renderAdmin();
             }
-            tabs.forEach(btn=>btn.addEventListener('click',()=>setTab(btn.getAttribute('data-siswatab'))));
-            loadFormForDate(tgl);
-            renderHistori();
-            renderRiwayatSaya();
-            updateRingkasan();
-            updateProgress();
-            setTab('harian');
+        } else {
+            showSection('roleGate');
         }
-        function getJournal(studentId, date){ return state.journals.find(j=>String(j.studentId)===String(studentId) && j.date===date); }
-        function onTanggalChange(){ const d=$('#tanggalJurnalSiswa').value || todayStr(); loadFormForDate(d); updateRingkasan(); updateProgress(); }
-        function loadFormForDate(date){
-            const j=getJournal(state.user.id, date);
-            // Menggunakan struktur data yang sudah datar (flat)
-            $('#bangunPagi').value=j?.bangun||'';
-            $('#ibadahSubuh').checked=!!j?.ibadahSubuh; 
-            $('#ibadahDzuhur').checked=!!j?.ibadahDzuhur; 
-            $('#ibadahAshar').checked=!!j?.ibadahAshar; 
-            $('#ibadahMaghrib').checked=!!j?.ibadahMaghrib; 
-            $('#ibadahIsya').checked=!!j?.ibadahIsya;
-            $('#olahragaKegiatan').value=j?.olahragaKegiatan||''; 
-            $('#olahragaMenit').value=j?.olahragaMenit??'';
-            $('#makanSehatYa').checked=!!j?.makanYa; 
-            $('#makanKarbo').checked=!!j?.makanKarbo; 
-            $('#makanSayurBuahSusu').checked=!!j?.makanSayurBuahSusu; 
-            $('#makanLauk').checked=!!j?.makanLauk; 
-            $('#makanAir').checked=!!j?.makanAir; 
-            $('#makanCatatan').value=j?.makanCatatan||'';
-            $('#belajarMenit').value=j?.belajarMenit??''; 
-            $('#belajarMateri').value=j?.belajarMateri||'';
-            $('#sosBermain').checked=!!j?.sosBermain; 
-            $('#sosBantuOrtu').checked=!!j?.sosBantuOrtu; 
-            $('#sosBelKelompok').checked=!!j?.sosBelKelompok; 
-            $('#sosMenolong').checked=!!j?.sosMenolong; 
-            $('#sosialisasiMenit').value=j?.sosMenit??''; 
-            $('#sosCatatan').value=j?.sosCatatan||'';
-            $('#tidurJam').value=j?.tidurJam||'';
-            $('#statusForm').textContent = j?.submitted?'Status: Terkirim':(j?'Status: Draft':'Status: Belum diisi');
-            toggleFormDisabled(!!j?.submitted);
-        }
-        function toggleFormDisabled(dis){
-            $$('#formJurnal input, #formJurnal button').forEach(el=>{
-                el.disabled=dis;
-                if(dis){el.classList.add('opacity-70','cursor-not-allowed');} else {el.classList.remove('opacity-70','cursor-not-allowed');}
-            });
-            $('#btnSimpanDraft').disabled = dis;
-            $('#btnKirimJurnal').disabled = dis;
-            if(dis) {
-                $('#btnSimpanDraft').classList.add('opacity-70', 'cursor-not-allowed');
-                $('#btnKirimJurnal').classList.add('opacity-70', 'cursor-not-allowed');
-            } else {
-                $('#btnSimpanDraft').classList.remove('opacity-70', 'cursor-not-allowed');
-                $('#btnKirimJurnal').classList.remove('opacity-70', 'cursor-not-allowed');
-            }
-        }
-        function readForm(){
-            // Objek datar (flat object) lebih mudah diproses oleh backend
-            return {
-                bangun: $('#bangunPagi').value || '',
-                ibadahSubuh: $('#ibadahSubuh').checked,
-                ibadahDzuhur: $('#ibadahDzuhur').checked,
-                ibadahAshar: $('#ibadahAshar').checked,
-                ibadahMaghrib: $('#ibadahMaghrib').checked,
-                ibadahIsya: $('#ibadahIsya').checked,
-                olahragaKegiatan: $('#olahragaKegiatan').value || '',
-                olahragaMenit: Number($('#olahragaMenit').value || 0),
-                makanYa: $('#makanSehatYa').checked,
-                makanKarbo: $('#makanKarbo').checked,
-                makanSayurBuahSusu: $('#makanSayurBuahSusu').checked,
-                makanLauk: $('#makanLauk').checked,
-                makanAir: $('#makanAir').checked,
-                makanCatatan: $('#makanCatatan').value || '',
-                belajarMenit: Number($('#belajarMenit').value || 0),
-                belajarMateri: $('#belajarMateri').value || '',
-                sosMenit: Number($('#sosialisasiMenit').value || 0),
-                sosBermain: $('#sosBermain').checked,
-                sosBantuOrtu: $('#sosBantuOrtu').checked,
-                sosBelKelompok: $('#sosBelKelompok').checked,
-                sosMenolong: $('#sosMenolong').checked,
-                sosCatatan: $('#sosCatatan').value || '',
-                tidurJam: $('#tidurJam').value || '',
-                tidurLarut: (timeToMin($('#tidurJam').value) ?? 0) > (22*60)
-            };
-        }
-        async function onSimpanKirimJurnal(isSubmit){
-            const date=$('#tanggalJurnalSiswa').value || todayStr(); 
-            const sId=state.user.id;
-            let j=getJournal(sId,date);
-            const form=readForm();
-            if (j && j.submitted) return flash('Jurnal sudah terkirim dan terkunci.');
-            if (isSubmit && (!form.bangun || !form.tidurJam)) return alert('Lengkapi jam bangun dan jam tidur sebelum mengirim.');
-            
-            const newJournalData = { ...form, id: j?.id || uid(), studentId: sId, date, submitted: isSubmit, submittedAt: isSubmit ? new Date().toISOString() : null, comments: j?.comments || [] };
-            
-            const result = await postToServer('saveJournal', { journal: newJournalData });
-            if(result){
-                const index = state.journals.findIndex(item => item.id === result.id);
-                if (index > -1) { state.journals[index] = result; } 
-                else { state.journals.push(result); }
-                loadFormForDate(date); renderHistori(); renderRiwayatSaya(); updateRingkasan(); updateProgress(); 
-                flash(isSubmit ? 'Jurnal terkirim!' : 'Draft disimpan.');
-            }
-        }
-        function renderHistori(){
-            const tb=$('#historiTable'); tb.innerHTML='';
-            const sId=state.user.id;
-            state.journals.filter(j=>String(j.studentId)===String(sId)).sort((a,b)=>b.date.localeCompare(a.date))
-            .forEach(j=>{
-                const tr=document.createElement('tr'); tr.className='border-b border-white/10';
-                const status=j.tidurLarut?'Tidur Larut':(j.submitted?'Terkirim':'Draft');
-                // [FIX] Menghitung ibadah dari data datar
-                const ibadahCount = (j.ibadahSubuh?1:0) + (j.ibadahDzuhur?1:0) + (j.ibadahAshar?1:0) + (j.ibadahMaghrib?1:0) + (j.ibadahIsya?1:0);
-                // [FIX] Menggunakan properti datar (j.olahragaMenit, j.makanYa, dll.)
-                tr.innerHTML=`<td class="py-2 pr-2">${fmtDateID(j.date)}</td> <td class="py-2 pr-2">${j.bangun||'-'}</td> <td class="py-2 pr-2 text-center">${ibadahCount}</td> <td class="py-2 pr-2 text-center">${j.olahragaMenit??0}</td> <td class="py-2 pr-2">${j.makanYa?'Ya':'Tidak'}</td> <td class="py-2 pr-2 text-center">${j.belajarMenit??0}</td> <td class="py-2 pr-2 text-center">${j.sosMenit??0}</td> <td class="py-2 pr-2">${j.tidurJam||'-'}</td> <td class="py-2 pr-2">${status}</td>`;
-                tb.appendChild(tr);
-            });
-        }
-        function renderRiwayatSaya(){
-            const sId=state.user.id; const terkirim=state.journals.filter(j=>String(j.studentId)===String(sId) && j.submitted);
-            const drafts=state.journals.filter(j=>String(j.studentId)===String(sId) && !j.submitted).length;
-            const denom = Math.max(1, terkirim.length);
-            $('#rwyHariTerkirim').textContent=terkirim.length;
-            $('#rwyDraft').textContent=drafts;
-            // [FIX] Menghitung rata-rata ibadah dari data datar
-            const totalIbadah = terkirim.reduce((a,j) => a + (j.ibadahSubuh?1:0) + (j.ibadahDzuhur?1:0) + (j.ibadahAshar?1:0) + (j.ibadahMaghrib?1:0) + (j.ibadahIsya?1:0), 0);
-            $('#rwyAvgIbadah').textContent = (totalIbadah / denom).toFixed(1);
-            // [FIX] Menggunakan properti datar untuk menghitung rata-rata
-            $('#rwyAvgBelajar').textContent=Math.round(terkirim.reduce((a,j)=>a+(j.belajarMenit||0),0)/denom);
-            $('#rwyAvgOlahraga').textContent=Math.round(terkirim.reduce((a,j)=>a+(j.olahragaMenit||0),0)/denom);
-            $('#rwyRateMakan').textContent=`${terkirim.length?Math.round(100*terkirim.filter(j=>j.makanYa).length/terkirim.length):0}%`;
-            $('#rwyLarutCount').textContent=terkirim.filter(j=>j.tidurLarut).length;
-        }
-        function updateRingkasan(){
-			const d=$('#tanggalJurnalSiswa').value || todayStr(); const j=getJournal(state.user.id,d);
-			const wrap=$('#ringkasanHariIni');
-			if(!j){ wrap.innerHTML='<div class="text-violet-200/80">Belum ada isian untuk tanggal ini.</div>'; return; }
-			const ibadahCount = (j.ibadahSubuh?1:0) + (j.ibadahDzuhur?1:0) + (j.ibadahAshar?1:0) + (j.ibadahMaghrib?1:0) + (j.ibadahIsya?1:0);
-			wrap.innerHTML=`<div><strong>Tanggal:</strong> ${fmtDateID(d)}</div> <div><strong>Bangun:</strong> ${j.bangun||'-'}</div> <div><strong>Ibadah:</strong> ${ibadahCount} kali</div> <div><strong>Olahraga:</strong> ${j.olahragaMenit??0} menit</div> <div><strong>Makan sehat:</strong> ${j.makanYa?'Ya':'Tidak'}</div> <div><strong>Belajar:</strong> ${j.belajarMenit??0} menit</div> <div><strong>Bermasyarakat:</strong> ${j.sosMenit??0} menit</div> <div><strong>Tidur:</strong> ${j.tidurJam||'-'} ${j.tidurLarut?'(larut malam)':''}</div> <div><strong>Status:</strong> ${j.submitted?'Terkirim':'Draft'}</div>`;
-		}
-        function updateProgress(){
-            const j=readForm(); let count=0;
-            // [FIX] Mengecek progres dari data datar
-            if(j.bangun) count++;
-            if(j.ibadahSubuh || j.ibadahDzuhur || j.ibadahAshar || j.ibadahMaghrib || j.ibadahIsya) count++;
-            if(j.olahragaMenit > 0) count++;
-            if(j.makanYa) count++;
-            if(j.belajarMenit > 0) count++;
-            if(j.sosMenit > 0) count++;
-            if(j.tidurJam) count++;
-            const pct=Math.round((count/7)*100);
-            $('#progressBar').style.width=pct+'%';
-            $('#progressLabel').textContent=pct+'%';
-            $('#progressTips').textContent = pct===100 ? 'Luar biasa! Semua kebiasaan terisi.' : 'Lengkapi 7 kebiasaan untuk 100%.';
-        }
-        function downloadURL(url, filename){ const a=document.createElement('a'); a.href=url; a.download=filename; document.body.appendChild(a); a.click(); a.remove(); }
-        
-        function attachGlobalListeners() {
-			// Admin listeners
-			$('#btnSimpanBiodata').addEventListener('click', onSimpanBiodata);
-			$('#formAddGuru').addEventListener('submit', onAddGuru);
-			$('#formAddSiswa').addEventListener('submit', onAddSiswa);
-			$('#btnRekapTerapkan').addEventListener('click', updateAdminRekap);
-			$('#btnRekapCetak').addEventListener('click', () => window.print());
-
-			// Guru listeners
-			const guruModeSelect = $('#guruMode');
-			const guruFilterHarian = $('#guruFilterHarian');
-			const guruFilterRentang = $('#guruFilterRentang');
-
-			guruModeSelect.addEventListener('change', () => {
-				const mode = guruModeSelect.value;
-				if (mode === 'harian') {
-					guruFilterHarian.classList.remove('flex');
-					guruFilterRentang.classList.add('hidden');
-				} else {
-					guruFilterHarian.classList.add('hidden');
-					guruFilterRentang.classList.remove('flex');
-				}
-				updateGuruStats();
-				updateGuruTable();
-			});
-
-            $('#filterTanggalGuru').addEventListener('change', () => {
-                updateGuruStats();
-                updateGuruTable();
-            });
-            $('#filterStatusGuru').addEventListener('change', updateGuruTable);
-            $('#filterNamaGuru').addEventListener('input', updateGuruTable);
-            $('#guruTerapkanRange').addEventListener('click', (event) => {
-                event.preventDefault();
-                updateGuruStats();
-                updateGuruTable();
-            });
-            $('#btnCetakGuru').addEventListener('click', () => window.print());
-
-			// Komentar listeners
-			$('#closeComment').addEventListener('click', closeCommentModal);
-			$('#commentForm').addEventListener('submit', onKirimKomentar);
-
-			// Siswa listeners
-			$('#formJurnal').addEventListener('submit', (e) => e.preventDefault());
-			
-			$('#btnSimpanDraft').addEventListener('click', (event) => {
-				event.preventDefault();
-				onSimpanKirimJurnal(false);
-			});
-			$('#btnKirimJurnal').addEventListener('click', (event) => {
-				event.preventDefault();
-				onSimpanKirimJurnal(true);
-			});
-			$('#btnKirimFinal').addEventListener('click', (event) => {
-				event.preventDefault();
-				onSimpanKirimJurnal(true);
-			});
-
-			$('#tanggalJurnalSiswa').addEventListener('change', onTanggalChange);
-			$('#btnEditKembali').addEventListener('click',()=>$$('.siswa-tab')[0].click());
-			$$('#formJurnal input, #formJurnal select, #formJurnal textarea').forEach(el => el.addEventListener('input', updateProgress));
-		}
-
-        async function initApp() {
-            loadStateFromStorage();
-            flash('Memuat data awal...');
-            const initialData = await fetchFromServer('getInitialData');
-            
-            if (initialData) {
-                state = { ...state, ...initialData };
-                flash('Data siap!');
-            } else {
-                flash('Gagal memuat data awal. Coba refresh halaman.');
-                return;
-            }
-            
-            updateSchoolUI();
-            attachRoleGate();
-            attachGlobalListeners();
-            setRoleBadge();
-
-            if (state.user) {
-                if (state.user.role === 'guru') {
-                    const journals = await fetchFromServer('getGuruData', { kelas: state.user.kelas });
-                    if(journals) state.journals = journals;
-                    showSection('guruView');
-                    renderGuru();
-                } else if (state.user.role === 'siswa') {
-                    const journals = await fetchFromServer('getSiswaData', { studentId: state.user.id });
-                    if(journals) state.journals = journals;
-                    showSection('siswaView');
-                    renderSiswa();
-                } else if (state.user.role === 'admin') {
-                    showSection('adminView');
-                    renderAdmin();
-                }
-            } else {
-                showSection('roleGate');
-            }
-        }
-        initApp();
-    </script>
+    }
+    
+    initApp();
+</script>
 </body>
 </html>
