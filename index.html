@@ -264,7 +264,7 @@
                                 </div>
                                 <div class="mt-4 overflow-auto">
                                     <table class="min-w-full text-sm">
-                                        <thead class="text-violet-200/80"> <tr class="border-b border-white/10"> <th class="text-left py-2 pr-2">Tanggal</th> <th class="text-left py-2 pr-2">Kelas</th> <th class="text-left py-2 pr-2">Siswa</th> <th class="text-left py-2 pr-2">Ibadah (✔)</th> <th class="text-left py-2 pr-2">Olahraga (m)</th> <th class="text-left py-2 pr-2">Makan Sehat</th> <th class="text-left py-2 pr-2">Belajar (m)</th> <th class="text-left py-2 pr-2">Sosialisasi (m)</th> <th class="text-left py-2 pr-2">Tidur</th> <th class="text-left py-2 pr-2">Komentar</th> <th class="text-left py-2 pr-2">Status</th> </tr> </thead>
+                                        <thead class="text-violet-200/80"> <tr class="border-b border-white/10"> <th class="text-left py-2 pr-2">Tanggal</th> <th class="text-left py-2 pr-2">Kelas</th> <th class="text-left py-2 pr-2">Siswa</th> <th class="text-left py-2 pr-2">Bangun</th> <th class="text-left py-2 pr-2">Ibadah (✔)</th> <th class="text-left py-2 pr-2">Olahraga (m)</th> <th class="text-left py-2 pr-2">Makan Sehat</th> <th class="text-left py-2 pr-2">Belajar (m)</th> <th class="text-left py-2 pr-2">Sosialisasi (m)</th> <th class="text-left py-2 pr-2">Tidur</th> <th class="text-left py-2 pr-2">Komentar</th> <th class="text-left py-2 pr-2">Status</th> </tr> </thead>
                                         <tbody id="rekapTable"></tbody>
                                     </table>
                                 </div>
@@ -923,13 +923,14 @@
                 // Menggunakan properti datar (flat) yang sudah Anda siapkan
                 const ibadahCount = (j.ibadahSubuh?1:0) + (j.ibadahDzuhur?1:0) + (j.ibadahAshar?1:0) + (j.ibadahMaghrib?1:0) + (j.ibadahIsya?1:0);
                 return {
-                    tanggal: j.date, kelas:s.kelas, siswa:s.name, 
+                    tanggal: j.date, kelas:s.kelas, siswa:s.name,
+                    bangun: j.bangun || '-', 
                     ib: ibadahCount,
                     olahraga: j.olahragaMenit || 0, 
                     makan: j.makanYa ? 'Ya' : 'Tidak',
                     belajar: j.belajarMenit || 0, 
                     sos: j.sosMenit || 0, 
-                    tidur: j.tidurJam || '-', // Mengambil jam tidur yang sudah benar
+                    tidur: j.tidurJam || '-',
                     status: j.tidurLarut ? 'Tidur Larut' : (j.submitted ? 'Terkirim' : 'Draft'),
                     komentar: (j.comments?.length||0)
                 };
@@ -939,7 +940,7 @@
             rows.forEach(r=>{
                 const tr=document.createElement('tr'); 
                 tr.className='border-b border-white/10';
-                tr.innerHTML=`<td class="py-2 pr-2">${fmtDateID(r.tanggal)}</td> <td class="py-2 pr-2">${escapeHtml(r.kelas)}</td> <td class="py-2 pr-2">${escapeHtml(r.siswa)}</td> <td class="py-2 pr-2 text-center">${r.ib}</td> <td class="py-2 pr-2 text-center">${r.olahraga}</td> <td class="py-2 pr-2">${r.makan}</td> <td class="py-2 pr-2 text-center">${r.belajar}</td> <td class="py-2 pr-2 text-center">${r.sos}</td> <td class="py-2 pr-2">${r.tidur}</td> <td class="py-2 pr-2 text-center">${r.komentar}</td> <td class="py-2 pr-2">${r.status}</td>`;
+                tr.innerHTML=`<td class="py-2 pr-2">${fmtDateID(r.tanggal)}</td> <td class="py-2 pr-2">${escapeHtml(r.kelas)}</td> <td class="py-2 pr-2">${escapeHtml(r.siswa)}</td> <td class="py-2 pr-2">${r.bangun}</td> <td class="py-2 pr-2 text-center">${r.ib}</td> <td class="py-2 pr-2 text-center">${r.olahraga}</td> <td class="py-2 pr-2">${r.makan}</td> <td class="py-2 pr-2 text-center">${r.belajar}</td> <td class="py-2 pr-2 text-center">${r.sos}</td> <td class="py-2 pr-2">${r.tidur}</td> <td class="py-2 pr-2 text-center">${r.komentar}</td> <td class="py-2 pr-2">${r.status}</td>`;
                 tbody.appendChild(tr);
             });
             $('#printAdminMeta').textContent = `Sekolah: ${state.school.name} • Kelas: ${kelas==='ALL'?'Semua':kelas} • Periode: ${fmtDateID(dari)} — ${fmtDateID(sampai)}`;
@@ -1009,15 +1010,15 @@
                 
                 const ibadahCount = (j.ibadahSubuh?1:0) + (j.ibadahDzuhur?1:0) + (j.ibadahAshar?1:0) + (j.ibadahMaghrib?1:0) + (j.ibadahIsya?1:0);
                 return {
-                    tanggal: j.date, kelas:s.kelas, siswa:s.name, 
+                    tanggal: j.date, kelas:s.kelas, siswa:s.name,
+                    bangun: j.bangun || '-', 
                     ib: ibadahCount,
                     olahraga: j.olahragaMenit || 0, 
                     makan: j.makanYa ? 'Ya' : 'Tidak',
                     belajar: j.belajarMenit || 0, 
                     sos: j.sosMenit || 0, 
                     tidur: j.tidurJam || '-',
-                    // Catatan: Status akan selalu 'Terkirim' atau 'Tidur Larut' karena Draft sudah difilter.
-                    status: j.tidurLarut ? 'Tidur Larut' : 'Terkirim', 
+                    status: j.tidurLarut ? 'Tidur Larut' : (j.submitted ? 'Terkirim' : 'Draft'),
                     komentar: (j.comments?.length||0)
                 };
             });
@@ -1026,8 +1027,8 @@
             rows.forEach(r=>{
                 const tr=document.createElement('tr'); 
                 tr.className='border-b border-white/10';
-                tr.innerHTML=`<td class="py-2 pr-2">${fmtDateID(r.tanggal)}</td> <td class="py-2 pr-2">${escapeHtml(r.kelas)}</td> <td class="py-2 pr-2">${escapeHtml(r.siswa)}</td> <td class="py-2 pr-2 text-center">${r.ib}</td> <td class="py-2 pr-2 text-center">${r.olahraga}</td> <td class="py-2 pr-2">${r.makan}</td> <td class="py-2 pr-2 text-center">${r.belajar}</td> <td class="py-2 pr-2 text-center">${r.sos}</td> <td class="py-2 pr-2">${r.tidur}</td> <td class="py-2 pr-2 text-center">${r.komentar}</td> <td class="py-2 pr-2">${r.status}</td>`;
                 tbody.appendChild(tr);
+                tr.innerHTML=`<td class="py-2 pr-2">${fmtDateID(r.tanggal)}</td> <td class="py-2 pr-2">${escapeHtml(r.kelas)}</td> <td class="py-2 pr-2">${escapeHtml(r.siswa)}</td> <td class="py-2 pr-2">${r.bangun}</td> <td class="py-2 pr-2 text-center">${r.ib}</td> <td class="py-2 pr-2 text-center">${r.olahraga}</td> <td class="py-2 pr-2">${r.makan}</td> <td class="py-2 pr-2 text-center">${r.belajar}</td> <td class="py-2 pr-2 text-center">${r.sos}</td> <td class="py-2 pr-2">${r.tidur}</td> <td class="py-2 pr-2 text-center">${r.komentar}</td> <td class="py-2 pr-2">${r.status}</td>`;
             });
             $('#printAdminMeta').textContent = `Sekolah: ${state.school.name} • Kelas: ${kelas==='ALL'?'Semua':kelas} • Periode: ${fmtDateID(dari)} — ${fmtDateID(sampai)}`;
         }
